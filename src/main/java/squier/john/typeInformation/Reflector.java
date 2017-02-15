@@ -1,7 +1,5 @@
 package squier.john.typeInformation;
 
-import com.sun.tools.internal.jxc.ap.Const;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -27,6 +25,7 @@ public class Reflector {
         Class<?>[] implementedInterfaces = theClass.getInterfaces();
         Class<?> theInterfaceClass;
 
+        // extract into getClassFromInterface method
         try {
             theInterfaceClass = Class.forName(theInterface);
         }
@@ -64,13 +63,22 @@ public class Reflector {
     }
 
     private String generateClassInfoString(Class<?> theClass) {
-        Field[] fields = theClass.getFields();
-        Constructor<?>[] constructors = theClass.getConstructors();
-        Method[] methods = theClass.getMethods();
-
         StringBuilder sb = new StringBuilder();
 
+        sb.append(generateFieldsInfoString(theClass));
+        sb.append(generateConstructorInfoString(theClass));
+        sb.append(generateMethodsInfoString(theClass));
+
+        return sb.toString();
+    }
+
+    private String generateFieldsInfoString(Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+
+        Field[] fields = theClass.getFields();
+
         sb.append("Fields\n");
+
         for ( Field f : fields ) {
             sb.append(theClass.getSimpleName()).append(" : ");
             sb.append(Modifier.toString(f.getModifiers())).append(" ");
@@ -78,29 +86,34 @@ public class Reflector {
             sb.append(f.getName()).append("\n");
         }
 
+        return sb.toString();
+    }
+
+    private String generateConstructorInfoString(Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+
+        Constructor<?>[] constructors = theClass.getConstructors();
+
         sb.append("Constructors\n");
+
         for ( Constructor<?> c : constructors ) {
             sb.append(theClass.getSimpleName()).append(" : ");
             sb.append(Modifier.toString(c.getModifiers())).append(" ");
             sb.append(c.getName()).append("(");
 
             Class<?>[] params = c.getParameterTypes();
-            if ( params.length == 0 ) {
-                sb.append(")");
-            }
-            else {
-                for ( int i = 0; i < params.length; i++ ) {
-                    sb.append(params[i].getName());
-                    if (i < params.length - 1) {
-                        sb.append(", ");
-                    } else {
-                        sb.append(")");
-                    }
-                }
-            }
+            sb.append(generateParamsInfoString(params));
 
             sb.append("\n");
         }
+
+        return sb.toString();
+    }
+
+    private String generateMethodsInfoString(Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+
+        Method[] methods = theClass.getMethods();
 
         Arrays.sort(methods, new Comparator<Method>() {
             @Override
@@ -110,7 +123,7 @@ public class Reflector {
         });
 
         sb.append("Methods\n");
-        for ( Method m : methods )
+        for ( Method m : methods ) {
             if ( m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName()) ) {
                 sb.append(theClass.getSimpleName()).append(" : ");
                 sb.append(Modifier.toString(m.getModifiers())).append(" ");
@@ -118,23 +131,31 @@ public class Reflector {
                 sb.append(m.getName()).append("(");
 
                 Class<?>[] params = m.getParameterTypes();
-                if ( params.length == 0 ) {
-                    sb.append(")");
-                }
-                else {
-                    for ( int i = 0; i < params.length; i++ ) {
-                        sb.append(params[i].getName());
-                        if (i < params.length - 1) {
-                            sb.append(", ");
-                        } else {
-                            sb.append(")");
-                        }
-                    }
-                }
+                sb.append(generateParamsInfoString(params));
 
                 sb.append("\n");
             }
+        }
 
+        return sb.toString();
+    }
+
+    private String generateParamsInfoString(Class<?>[] params) {
+        StringBuilder sb = new StringBuilder();
+
+        if ( params.length == 0 ) {
+            sb.append(")");
+        }
+        else {
+            for ( int i = 0; i < params.length; i++ ) {
+                sb.append(params[i].getName());
+                if (i < params.length - 1) {
+                    sb.append(", ");
+                } else {
+                    sb.append(")");
+                }
+            }
+        }
 
         return sb.toString();
     }

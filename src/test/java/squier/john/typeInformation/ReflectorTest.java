@@ -136,7 +136,7 @@ public class ReflectorTest {
                 "Object : public final void wait()\n";
 
         String actual = null;
-        try { actual = reflector.listAllMembers(new BufferedWriter(new FileWriter(" "))); }
+        try { actual = reflector.listAllMembers(new BufferedWriter(new FileWriter("test.txt"))); }
         catch ( Exception e ) { }
 
         Assert.assertEquals(expected, actual);
