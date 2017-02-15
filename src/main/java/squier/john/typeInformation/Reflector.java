@@ -8,6 +8,7 @@ import java.util.*;
 
 /**
  * Created by johnsquier on 2/15/17.
+ * @@@ Refactor getClassHierarchy(Object)
  */
 public class Reflector {
 
@@ -23,14 +24,10 @@ public class Reflector {
 
     public boolean classImplementsInterface(Class<?> theClass, String theInterface) {
         Class<?>[] implementedInterfaces = theClass.getInterfaces();
-        Class<?> theInterfaceClass;
+        Class<?> theInterfaceClass = getClassFromInterface(theInterface);
 
-        // extract into getClassFromInterface method
-        try {
-            theInterfaceClass = Class.forName(theInterface);
-        }
-        catch ( ClassNotFoundException e ) {
-            System.err.println("Interface: " + theInterface + " not found");
+        // uncle bob says no null's but I think it makes the code more readable than a try catch
+        if ( theInterfaceClass == null ) {
             return false;
         }
 
@@ -54,12 +51,55 @@ public class Reflector {
 
         sb.append(generateClassInfoString(theClass));
 
-        while ( !theClass.getSimpleName().equals("Object")) {
+        while ( !theClass.getSimpleName().equals("Object") ) {
             theClass = theClass.getSuperclass();
             sb.append(generateClassInfoString(theClass));
         }
 
         return sb.toString();
+    }
+
+    // @@@ refactor
+    public String getClassHierarchy(Object o) {
+        List<Class<?>> classHierarchyInReverse = new ArrayList<>();
+        Class<?> theClass = o.getClass();
+
+        classHierarchyInReverse.add(theClass);
+
+        while( !theClass.getSimpleName().equals("Object") ) {
+            theClass = theClass.getSuperclass();
+            classHierarchyInReverse.add(theClass);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int numSpaces = 0;
+
+        for ( int i = classHierarchyInReverse.size()-1; i >= 0; i-- ) {
+            for ( int j = 0; j < numSpaces; j++ ) {
+                sb.append(" ");
+            }
+            numSpaces += 2;
+            sb.append(classHierarchyInReverse.get(i).getName());
+            sb.append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    public List<Object> instantiateClassHierarcy(Object o) {
+        return null;
+    }
+
+    private Class<?> getClassFromInterface(String theInterface) {
+        Class<?> theInterfaceClass;
+        try {
+            theInterfaceClass = Class.forName(theInterface);
+        }
+        catch ( ClassNotFoundException e ) {
+            System.err.println("Interface: " + theInterface + " not found");
+            return null;
+        }
+        return theInterfaceClass;
     }
 
     private String generateClassInfoString(Class<?> theClass) {

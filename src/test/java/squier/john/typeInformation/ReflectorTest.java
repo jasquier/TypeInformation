@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 /**
  * Created by johnsquier on 2/15/17.
@@ -84,7 +85,7 @@ public class ReflectorTest {
     }
 
     @Test
-    public void tryToCompareObjectToNonExistentInterface() {
+    public void tryToCompareObjectToNonExistentInterfaceTest() {
         boolean expected = false;
 
         boolean actual = reflector.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
@@ -93,7 +94,7 @@ public class ReflectorTest {
     }
 
     @Test
-    public void listAllMembersBufferedWriter() {
+    public void listAllMembersBufferedWriterTest() {
         String expected = "Fields\n" +
                 "Constructors\n" +
                 "BufferedWriter : public java.io.BufferedWriter(java.io.Writer)\n" +
@@ -143,7 +144,7 @@ public class ReflectorTest {
     }
 
     @Test
-    public void listAllMembersBoolean() {
+    public void listAllMembersBooleanTest() {
         String expected = "Fields\n" +
                 "Boolean : public static final Boolean TRUE\n" +
                 "Boolean : public static final Boolean FALSE\n" +
@@ -186,4 +187,23 @@ public class ReflectorTest {
 
         Assert.assertEquals(expected, actual);
     }
+
+    @Test
+    public void getClassHierarchyBooleanTest() {
+        String expected = "java.lang.Object\n  java.lang.Boolean\n";
+
+        String actual = reflector.getClassHierarchy(new Boolean(true));
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getClassHierarchyTreeMapTest() {
+        String expected = "java.lang.Object\n  java.util.AbstractMap\n    java.util.TreeMap\n";
+
+        String actual = reflector.getClassHierarchy(new TreeMap<String, String>());
+
+        Assert.assertEquals(expected, actual);
+    }
+
 }
