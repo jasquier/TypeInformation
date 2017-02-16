@@ -12,19 +12,19 @@ import java.util.TreeMap;
 /**
  * Created by johnsquier on 2/15/17.
  */
-public class ReflectorTest {
+public class ReflectionUtilsTest {
 
-    Reflector reflector;
+    ReflectionUtils reflectionUtils;
 
     @Before
     public void setup() {
-        reflector = new Reflector();
+        reflectionUtils = new ReflectionUtils();
     }
 
     @Test
     public void objectDoesImplementInterfaceTest() {
         boolean expected = true;
-        boolean actual = reflector.classImplementsInterface(new Scanner(System.in), "java.io.Closeable");
+        boolean actual = reflectionUtils.classImplementsInterface(new Scanner(System.in), "java.io.Closeable");
 
         Assert.assertEquals("I expect Scanner(System.in) to implement \"java.io.Closeable\"",
                 expected, actual);
@@ -33,7 +33,7 @@ public class ReflectorTest {
     @Test
     public void objectDoesNotImplementInterfaceTest() {
         boolean expected = false;
-        boolean actual = reflector.classImplementsInterface(new Integer(10), "java.lang.Iterable");
+        boolean actual = reflectionUtils.classImplementsInterface(new Integer(10), "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect Integer(10) to implement \"java.lang.Iterable\"",
                 expected, actual);
@@ -42,7 +42,7 @@ public class ReflectorTest {
     @Test
     public void classObjectDoesImplementInterfaceTest() {
         boolean expected = true;
-        boolean actual = reflector.classImplementsInterface("string".getClass(), "java.lang.CharSequence");
+        boolean actual = reflectionUtils.classImplementsInterface("string".getClass(), "java.lang.CharSequence");
 
         Assert.assertEquals("I expect String.class to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -51,7 +51,7 @@ public class ReflectorTest {
     @Test
     public void classObjectDoesNotImplementInterfaceTest() {
         boolean expected = false;
-        boolean actual = reflector.classImplementsInterface(new Integer(10).getClass(), "java.lang.Iterable");
+        boolean actual = reflectionUtils.classImplementsInterface(new Integer(10).getClass(), "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect Integer.class to implement \"java.lang.Iterable\"",
                 expected, actual);
@@ -60,7 +60,7 @@ public class ReflectorTest {
     @Test
     public void classNameDoesImplementInterfaceTest() {
         boolean expected = true;
-        boolean actual = reflector.classImplementsInterface("java.lang.String", "java.lang.CharSequence");
+        boolean actual = reflectionUtils.classImplementsInterface("java.lang.String", "java.lang.CharSequence");
 
         Assert.assertEquals("I expect \"java.lang.String\" to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -69,7 +69,7 @@ public class ReflectorTest {
     @Test
     public void classNameDoesNotImplementInterfaceTest() {
         boolean expected = false;
-        boolean actual = reflector.classImplementsInterface("java.lang.Integer", "java.lang.Iterable");
+        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement\"java.lang.Iterable\"",
                 expected, actual);
@@ -78,7 +78,7 @@ public class ReflectorTest {
     @Test
     public void stringIsNotAClassNameButAStringLiteralTest() {
         boolean expected = true;
-        boolean actual = reflector.classImplementsInterface(" ", "java.lang.CharSequence");
+        boolean actual = reflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
 
         Assert.assertEquals("I expect \" \" to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -87,7 +87,7 @@ public class ReflectorTest {
     @Test
     public void tryToCompareObjectToNonExistentInterfaceTest() {
         boolean expected = false;
-        boolean actual = reflector.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
+        boolean actual = reflectionUtils.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
 
         Assert.assertEquals("I don't expect Object() to implement \"abra.kadabra.Allakhazham\"",
                 expected, actual);
@@ -138,7 +138,7 @@ public class ReflectorTest {
 
         String actual = null;
 
-        try { actual = reflector.listAllMembers(new BufferedWriter(new FileWriter("test.txt"))); }
+        try { actual = reflectionUtils.listAllMembers(new BufferedWriter(new FileWriter("test.txt"))); }
         catch ( Exception e ) { }
 
         Assert.assertEquals(expected, actual);
@@ -147,8 +147,8 @@ public class ReflectorTest {
     @Test
     public void listAllMembersBooleanTest() {
         String expected = "Fields\n" +
-                "Boolean : public static final Boolean TRUE\n" +
                 "Boolean : public static final Boolean FALSE\n" +
+                "Boolean : public static final Boolean TRUE\n" +
                 "Boolean : public static final Class TYPE\n" +
                 "Constructors\n" +
                 "Boolean : public java.lang.Boolean(boolean)\n" +
@@ -184,7 +184,7 @@ public class ReflectorTest {
                 "Object : public final native void wait(long)\n" +
                 "Object : public final void wait()\n";
 
-        String actual = reflector.listAllMembers(new Boolean(true));
+        String actual = reflectionUtils.listAllMembers(new Boolean(true));
 
         Assert.assertEquals(expected, actual);
     }
@@ -192,7 +192,7 @@ public class ReflectorTest {
     @Test
     public void getClassHierarchyBooleanTest() {
         String expected = "java.lang.Object\n  java.lang.Boolean\n";
-        String actual = reflector.getClassHierarchy(new Boolean(true));
+        String actual = reflectionUtils.getClassHierarchy(new Boolean(true));
 
         Assert.assertEquals(expected, actual);
     }
@@ -200,7 +200,7 @@ public class ReflectorTest {
     @Test
     public void getClassHierarchyTreeMapTest() {
         String expected = "java.lang.Object\n  java.util.AbstractMap\n    java.util.TreeMap\n";
-        String actual = reflector.getClassHierarchy(new TreeMap<String, String>());
+        String actual = reflectionUtils.getClassHierarchy(new TreeMap<String, String>());
 
         Assert.assertEquals(expected, actual);
     }

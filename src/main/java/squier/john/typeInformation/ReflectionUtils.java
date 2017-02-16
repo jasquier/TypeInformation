@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Created by johnsquier on 2/15/17.
  */
-public class Reflector {
+public class ReflectionUtils {
 
     public boolean classImplementsInterface(String aClassName, String anInterfaceName) {
         Class<?> theClass = getClassName(aClassName);
@@ -34,6 +34,32 @@ public class Reflector {
         return classImplementsInterface(o.getClass(), theInterface);
     }
 
+    public String listAllMembers(Object o) {
+        StringBuilder sb = new StringBuilder();
+
+        Class<?> theClass = o.getClass();
+        sb.append(classInfoString(theClass));
+
+        while ( hasASuperClass(theClass) ) {
+            theClass = theClass.getSuperclass();
+            sb.append(classInfoString(theClass));
+        }
+        return sb.toString();
+    }
+
+    public String getClassHierarchy(Object o) {
+        List<Class<?>> classHierarchyInReverse = new ArrayList<>();
+
+        Class<?> theClass = o.getClass();
+        classHierarchyInReverse.add(theClass);
+
+        while ( hasASuperClass(theClass) ) {
+            theClass = theClass.getSuperclass();
+            classHierarchyInReverse.add(theClass);
+        }
+        return generateClassHierarchyString(classHierarchyInReverse);
+    }
+
     private Class<?> getClassName(String aClassName) {
         Class<?> theInterfaceClass;
         try {
@@ -56,19 +82,6 @@ public class Reflector {
         return false;
     }
 
-    public String listAllMembers(Object o) {
-        StringBuilder sb = new StringBuilder();
-
-        Class<?> theClass = o.getClass();
-        sb.append(classInfoString(theClass));
-
-        while ( hasASuperClass(theClass) ) {
-            theClass = theClass.getSuperclass();
-            sb.append(classInfoString(theClass));
-        }
-        return sb.toString();
-    }
-
     private String classInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
@@ -79,18 +92,16 @@ public class Reflector {
         return sb.toString();
     }
 
-    private boolean hasASuperClass(Class<?> theClass) {
-        return !theClass.getSimpleName().equals("Object");
-    }
-
     private String fieldsInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
         Field[] fields = theClass.getFields();
         sb.append("Fields\n");
 
+        fields = sortMemberArray(fields);
+
         for (Field f : fields) {
-            sb.append(classNameAndColon(theClass));
+            sb.append(classNameHeader(theClass));
             sb.append(modifiers(f));
             sb.append(fieldType(f));
             sb.append(fieldName(f));
@@ -104,8 +115,10 @@ public class Reflector {
         Constructor<?>[] constructors = theClass.getConstructors();
         sb.append("Constructors\n");
 
+        // sort constructors by name?
+
         for (Constructor<?> c : constructors) {
-            sb.append(classNameAndColon(theClass));
+            sb.append(classNameHeader(theClass));
             sb.append(modifiers(c));
             sb.append(constructorName(c));
             sb.append(params(c));
@@ -120,11 +133,11 @@ public class Reflector {
         Method[] methods = theClass.getMethods();
         sb.append("Methods\n");
 
-        methods = sortMethodArray(methods);
+        methods = sortMemberArray(methods);
 
         for (Method m : methods) {
             if ( methodIsDeclaredInThisClass(m, theClass) ) {
-                sb.append(classNameAndColon(theClass));
+                sb.append(classNameHeader(theClass));
                 sb.append(modifiers(m));
                 sb.append(methodReturnType(m));
                 sb.append(methodName(m));
@@ -135,7 +148,17 @@ public class Reflector {
         return sb.toString();
     }
 
-    private Method[] sortMethodArray(Method[] m) {
+    private Field[] sortMemberArray(Field[] f) {
+        Arrays.sort(f, new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return f;
+    }
+
+    private Method[] sortMemberArray(Method[] m) {
         Arrays.sort(m, new Comparator<Method>() {
             @Override
             public int compare(Method o1, Method o2) {
@@ -149,7 +172,11 @@ public class Reflector {
         return m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName());
     }
 
-    private String classNameAndColon(Class<?> theClass) {
+    private boolean hasASuperClass(Class<?> theClass) {
+        return !theClass.getSimpleName().equals("Object");
+    }
+
+    private String classNameHeader(Class<?> theClass) {
         return theClass.getSimpleName() + " : ";
     }
 
@@ -193,39 +220,41 @@ public class Reflector {
         return paramsInfoString(m.getParameterTypes());
     }
 
-    // @@@ Refactor
     private String paramsInfoString(Class<?>[] params) {
         StringBuilder sb = new StringBuilder();
 
-        if (params.length == 0) {
+        if ( empty(params) ) {
             sb.append(")");
         } else {
-            for (int i = 0; i < params.length; i++) {
-                sb.append(params[i].getName());
-                if (i < params.length - 1) {
-                    sb.append(", ");
-                } else {
-                    sb.append(")");
-                }
+            sb.append(allParams(params));
+        }
+        return sb.toString();
+    }
+
+    private boolean empty(Class<?>[] params) {
+        return params.length == 0;
+    }
+
+    private String allParams(Class<?>[] params) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < params.length; i++) {
+            sb.append(params[i].getName());
+
+            if (iIsTheLastParam(i, params.length)) {
+                sb.append(")");
+            } else {
+                sb.append(", ");
             }
         }
         return sb.toString();
     }
 
-    public String getClassHierarchy(Object o) {
-        List<Class<?>> classHierarchyInReverse = new ArrayList<>();
-
-        Class<?> theClass = o.getClass();
-        classHierarchyInReverse.add(theClass);
-
-        while ( hasASuperClass(theClass) ) {
-            theClass = theClass.getSuperclass();
-            classHierarchyInReverse.add(theClass);
-        }
-        return generateClassHierarchyString(classHierarchyInReverse);
+    private boolean iIsTheLastParam(int i, int n) {
+        return i == n-1;
     }
 
-    // p5.1 @@@ Refactor
+    // @@@ Refactor
     private String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
         StringBuilder sb = new StringBuilder();
 
