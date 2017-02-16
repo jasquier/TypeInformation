@@ -290,16 +290,15 @@ public class ReflectionUtils {
 
     // @@@ refactor
     private Object getNextConcreteClass(Object o) throws IllegalAccessException, InstantiationException {
-        Class<?> theClass = o.getClass();
-        Class<?> theSuperClass = theClass.getSuperclass();
+        Class<?> theSuperClass = o.getClass().getSuperclass();
 
-        if ( isConcrete(theSuperClass) ) {
+        if ( hasASuperClass(o.getClass()) && isConcrete(theSuperClass) ) {
             return theSuperClass.newInstance();
         }
         else {
             while ( hasASuperClass(theSuperClass) ) {
                 if ( isConcrete(theSuperClass) ) {
-                    return theSuperClass;
+                    return theSuperClass.newInstance();
                 }
                 theSuperClass = theSuperClass.getSuperclass();
             }
@@ -340,7 +339,11 @@ public class ReflectionUtils {
     }
 
     private boolean isConcrete(Class<?> c) {
-        return false;
+        boolean result = true;
+        if ( Modifier.isAbstract(c.getModifiers()) ) {
+            result = false;
+        }
+        return result;
     }
 
     private boolean isObjectClass(Object o) {

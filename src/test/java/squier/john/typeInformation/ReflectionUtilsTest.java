@@ -4,9 +4,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.nio.file.OpenOption;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by johnsquier on 2/15/17.
@@ -295,7 +299,6 @@ public class ReflectionUtilsTest {
     public void instantiateClassHierarchyArrayList() {
         List<Object> expected = new ArrayList<>();
         expected.add(new ArrayList<>());
-        // two abstract classes between ArrayList() and Object()
         expected.add(new Object());
 
         List<Object> actual = null;
@@ -312,6 +315,30 @@ public class ReflectionUtilsTest {
         Assert.assertTrue(actual.size() == 2);
         Assert.assertEquals(expected.get(0).getClass().getSimpleName(), actual.get(0).getClass().getSimpleName());
         Assert.assertEquals(expected.get(1).getClass().getSimpleName(), actual.get(1).getClass().getSimpleName());
+    }
+
+    @Test
+    public void instantiateClassHierarchyJPanel() {
+        List<Object> expected = new ArrayList<>();
+        expected.add(new JPanel());
+        expected.add(new Container());
+        expected.add(new Object());
+
+        List<Object> actual = null;
+        try {
+            actual = reflectionUtils.instantiateClassHierarchy(new JPanel());
+        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
+            classInHierarchyLacksNoArgConstructor.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(actual.size() == 3);
+        Assert.assertEquals(expected.get(0).getClass().getSimpleName(), actual.get(0).getClass().getSimpleName());
+        Assert.assertEquals(expected.get(1).getClass().getSimpleName(), actual.get(1).getClass().getSimpleName());
+        Assert.assertEquals(expected.get(2).getClass().getSimpleName(), actual.get(2).getClass().getSimpleName());
     }
 
     @Test(expected = ClassInHierarchyLacksNoArgConstructor.class)
