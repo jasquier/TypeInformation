@@ -34,37 +34,6 @@ public class Reflector {
         return classImplementsInterface(o.getClass(), theInterface);
     }
 
-    public String listAllMembers(Object o) {
-        StringBuilder sb = new StringBuilder();
-
-        Class<?> theClass = o.getClass();
-        sb.append(classInfoString(theClass));
-
-        while ( hasASuperClass(theClass) ) {
-            theClass = theClass.getSuperclass();
-            sb.append(classInfoString(theClass));
-        }
-        return sb.toString();
-    }
-
-    public String getClassHierarchy(Object o) {
-        List<Class<?>> classHierarchyInReverse = new ArrayList<>();
-
-        Class<?> theClass = o.getClass();
-        classHierarchyInReverse.add(theClass);
-
-        while ( hasASuperClass(theClass) ) {
-            theClass = theClass.getSuperclass();
-            classHierarchyInReverse.add(theClass);
-        }
-        return generateClassHierarchyString(classHierarchyInReverse);
-    }
-
-    // 6
-    public List<Object> instantiateClassHierarcy(Object o) {
-        return null;
-    }
-
     private Class<?> getClassName(String aClassName) {
         Class<?> theInterfaceClass;
         try {
@@ -87,6 +56,19 @@ public class Reflector {
         return false;
     }
 
+    public String listAllMembers(Object o) {
+        StringBuilder sb = new StringBuilder();
+
+        Class<?> theClass = o.getClass();
+        sb.append(classInfoString(theClass));
+
+        while ( hasASuperClass(theClass) ) {
+            theClass = theClass.getSuperclass();
+            sb.append(classInfoString(theClass));
+        }
+        return sb.toString();
+    }
+
     private String classInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
@@ -95,6 +77,10 @@ public class Reflector {
         sb.append(methodsInfoString(theClass));
 
         return sb.toString();
+    }
+
+    private boolean hasASuperClass(Class<?> theClass) {
+        return !theClass.getSimpleName().equals("Object");
     }
 
     private String fieldsInfoString(Class<?> theClass) {
@@ -149,6 +135,20 @@ public class Reflector {
         return sb.toString();
     }
 
+    private Method[] sortMethodArray(Method[] m) {
+        Arrays.sort(m, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return m;
+    }
+
+    private boolean methodIsDeclaredInThisClass(Method m, Class<?> theClass) {
+        return m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName());
+    }
+
     private String classNameAndColon(Class<?> theClass) {
         return theClass.getSimpleName() + " : ";
     }
@@ -169,16 +169,16 @@ public class Reflector {
         return f.getType().getSimpleName() + " ";
     }
 
+    private String methodReturnType(Method m) {
+        return m.getReturnType() + " ";
+    }
+
     private String fieldName(Field f) {
         return f.getName() + "\n";
     }
 
     private String constructorName(Constructor c) {
         return c.getName() + "(";
-    }
-
-    private String methodReturnType(Method m) {
-        return m.getReturnType() + " ";
     }
 
     private String methodName(Method m) {
@@ -212,23 +212,17 @@ public class Reflector {
         return sb.toString();
     }
 
-    private Method[] sortMethodArray(Method[] m) {
-        Arrays.sort(m, new Comparator<Method>() {
-            @Override
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        return m;
-    }
+    public String getClassHierarchy(Object o) {
+        List<Class<?>> classHierarchyInReverse = new ArrayList<>();
 
-    private boolean methodIsDeclaredInThisClass(Method m, Class<?> theClass) {
-        return m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName());
-    }
+        Class<?> theClass = o.getClass();
+        classHierarchyInReverse.add(theClass);
 
-    // p4.2
-    private boolean hasASuperClass(Class<?> theClass) {
-        return !theClass.getSimpleName().equals("Object");
+        while ( hasASuperClass(theClass) ) {
+            theClass = theClass.getSuperclass();
+            classHierarchyInReverse.add(theClass);
+        }
+        return generateClassHierarchyString(classHierarchyInReverse);
     }
 
     // p5.1 @@@ Refactor
@@ -245,6 +239,11 @@ public class Reflector {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    // 6
+    public List<Object> instantiateClassHierarcy(Object o) {
+        return null;
     }
 }
 
