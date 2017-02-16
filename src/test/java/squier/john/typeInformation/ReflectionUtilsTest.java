@@ -35,7 +35,7 @@ public class ReflectionUtilsTest {
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Integer(10), "java.lang.Iterable");
 
-        Assert.assertEquals("I don't expect Integer(10) to implement \"java.lang.Iterable\"",
+        Assert.assertEquals("I don't expect Integer() to implement \"java.lang.Iterable\"",
                 expected, actual);
     }
 
@@ -76,20 +76,65 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void stringIsNotAClassNameButAStringLiteralTest() {
-        boolean expected = true;
-        boolean actual = reflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
-
-        Assert.assertEquals("I expect \" \" to implement \"java.lang.CharSequence\"",
-                expected, actual);
-    }
-
-    @Test
     public void tryToCompareObjectToNonExistentInterfaceTest() {
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
 
         Assert.assertEquals("I don't expect Object() to implement \"abra.kadabra.Allakhazham\"",
+                expected, actual);
+    }
+
+    @Test
+    public void tryToCompareClassObjectToNonExistentInterfaceTest() {
+        boolean expected = false;
+        boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), "abra.kadabra.Allakhazham");
+
+        Assert.assertEquals("I don't expect Object.class to implement \"abra.kadabra.Allakhazham\"",
+                expected, actual);
+    }
+
+    @Test
+    public void tryToCompareClassNameToNonExistentInterfaceTest() {
+        boolean expected = false;
+        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "abra.kadabra.Allakhazham");
+
+        Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement \"abra.kadabra.Allakhazham\"",
+                expected, actual);
+    }
+
+    @Test
+    public void tryToCompareObjectToNullInterface() {
+        boolean expected = false;
+        boolean actual = reflectionUtils.classImplementsInterface(new Object(), null);
+
+        Assert.assertEquals("I don't expect Object() to implement null",
+                expected, actual);
+    }
+
+    @Test
+    public void tryToCompareClassObjectToNullInterface() {
+        boolean expected = false;
+        boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), null);
+
+        Assert.assertEquals("I don't expect Object.class to implement null",
+                expected, actual);
+    }
+
+    @Test
+    public void tryToCompareClassNameToNullInterface() {
+        boolean expected = false;
+        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", null);
+
+        Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement null",
+                expected, actual);
+    }
+
+    @Test
+    public void stringIsNotAClassNameButAStringLiteralTest() {
+        boolean expected = true;
+        boolean actual = reflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
+
+        Assert.assertEquals("I expect \" \" to implement \"java.lang.CharSequence\"",
                 expected, actual);
     }
 
