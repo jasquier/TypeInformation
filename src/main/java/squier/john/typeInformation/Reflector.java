@@ -8,36 +8,26 @@ import java.util.*;
 
 /**
  * Created by johnsquier on 2/15/17.
- * @@@ Refactor getClassHierarchy(Object)
  */
 public class Reflector {
 
-    public boolean classImplementsInterface(String theClassName, String theInterface) {
-        try {
-            Class<?> theClass = Class.forName(theClassName);
-            return classImplementsInterface(theClass, theInterface);
-        }
-        catch ( ClassNotFoundException e ) {
-            return classImplementsInterface((Object)theClassName, theInterface);
+    public boolean classImplementsInterface(String aClassName, String anInterfaceName) {
+        Class<?> theClass = getClassName(aClassName);
+
+        if ( theClass == null ) { // more readable than try-catch?
+            return classImplementsInterface((Object) aClassName, anInterfaceName);
+        } else {
+            return classImplementsInterface(theClass, anInterfaceName);
         }
     }
 
-    public boolean classImplementsInterface(Class<?> theClass, String theInterface) {
-        Class<?>[] implementedInterfaces = theClass.getInterfaces();
-        Class<?> theInterfaceClass = getClassFromInterface(theInterface);
+    public boolean classImplementsInterface(Class<?> theClass, String anInterface) {
+        Class<?> theInterfaceClass = getClassName(anInterface);
 
-        // uncle bob says no null's but I think it makes the code more readable than a try catch
-        if ( theInterfaceClass == null ) {
+        if ( theInterfaceClass == null ) { // same here?
             return false;
         }
-
-        for ( Class c : implementedInterfaces ) {
-            if ( c.getName().equals(theInterfaceClass.getName()) ) {
-                return true;
-            }
-        }
-
-        return false;
+        return checkClassForInterface(theClass, theInterfaceClass);
     }
 
     public boolean classImplementsInterface(Object o, String theInterface) {
@@ -48,146 +38,169 @@ public class Reflector {
         StringBuilder sb = new StringBuilder();
 
         Class<?> theClass = o.getClass();
+        sb.append(classInfoString(theClass));
 
-        sb.append(generateClassInfoString(theClass));
-
-        while ( !theClass.getSimpleName().equals("Object") ) {
+        while ( hasASuperClass(theClass) ) {
             theClass = theClass.getSuperclass();
-            sb.append(generateClassInfoString(theClass));
+            sb.append(classInfoString(theClass));
         }
-
         return sb.toString();
     }
 
-    // @@@ refactor
     public String getClassHierarchy(Object o) {
         List<Class<?>> classHierarchyInReverse = new ArrayList<>();
-        Class<?> theClass = o.getClass();
 
+        Class<?> theClass = o.getClass();
         classHierarchyInReverse.add(theClass);
 
-        while( !theClass.getSimpleName().equals("Object") ) {
+        while ( hasASuperClass(theClass) ) {
             theClass = theClass.getSuperclass();
             classHierarchyInReverse.add(theClass);
         }
-
-        StringBuilder sb = new StringBuilder();
-        int numSpaces = 0;
-
-        for ( int i = classHierarchyInReverse.size()-1; i >= 0; i-- ) {
-            for ( int j = 0; j < numSpaces; j++ ) {
-                sb.append(" ");
-            }
-            numSpaces += 2;
-            sb.append(classHierarchyInReverse.get(i).getName());
-            sb.append("\n");
-        }
-
-        return sb.toString();
+        return generateClassHierarchyString(classHierarchyInReverse);
     }
 
+    // 6
     public List<Object> instantiateClassHierarcy(Object o) {
         return null;
     }
 
-    private Class<?> getClassFromInterface(String theInterface) {
+    private Class<?> getClassName(String aClassName) {
         Class<?> theInterfaceClass;
         try {
-            theInterfaceClass = Class.forName(theInterface);
-        }
-        catch ( ClassNotFoundException e ) {
-            System.err.println("Interface: " + theInterface + " not found");
+            theInterfaceClass = Class.forName(aClassName);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Class: " + aClassName + " not found");
             return null;
         }
         return theInterfaceClass;
     }
 
-    private String generateClassInfoString(Class<?> theClass) {
+    private boolean checkClassForInterface(Class<?> theClass, Class<?> theInterfaceClass) {
+        Class<?>[] implementedInterfaces = theClass.getInterfaces();
+
+        for ( Class c : implementedInterfaces ) {
+            if ( c.getName().equals(theInterfaceClass.getName()) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String classInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(generateFieldsInfoString(theClass));
-        sb.append(generateConstructorInfoString(theClass));
-        sb.append(generateMethodsInfoString(theClass));
+        sb.append(fieldsInfoString(theClass));
+        sb.append(constructorInfoString(theClass));
+        sb.append(methodsInfoString(theClass));
 
         return sb.toString();
     }
 
-    private String generateFieldsInfoString(Class<?> theClass) {
+    private String fieldsInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
         Field[] fields = theClass.getFields();
-
         sb.append("Fields\n");
 
-        for ( Field f : fields ) {
-            sb.append(theClass.getSimpleName()).append(" : ");
-            sb.append(Modifier.toString(f.getModifiers())).append(" ");
-            sb.append(f.getType().getSimpleName()).append(" ");
-            sb.append(f.getName()).append("\n");
+        for (Field f : fields) {
+            sb.append(classNameAndColon(theClass));
+            sb.append(modifiers(f));
+            sb.append(fieldType(f));
+            sb.append(fieldName(f));
         }
-
         return sb.toString();
     }
 
-    private String generateConstructorInfoString(Class<?> theClass) {
+    private String constructorInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
         Constructor<?>[] constructors = theClass.getConstructors();
-
         sb.append("Constructors\n");
 
-        for ( Constructor<?> c : constructors ) {
-            sb.append(theClass.getSimpleName()).append(" : ");
-            sb.append(Modifier.toString(c.getModifiers())).append(" ");
-            sb.append(c.getName()).append("(");
-
-            Class<?>[] params = c.getParameterTypes();
-            sb.append(generateParamsInfoString(params));
-
+        for (Constructor<?> c : constructors) {
+            sb.append(classNameAndColon(theClass));
+            sb.append(modifiers(c));
+            sb.append(constructorName(c));
+            sb.append(params(c));
             sb.append("\n");
         }
-
         return sb.toString();
     }
 
-    private String generateMethodsInfoString(Class<?> theClass) {
+    private String methodsInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
         Method[] methods = theClass.getMethods();
-
-        Arrays.sort(methods, new Comparator<Method>() {
-            @Override
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-
         sb.append("Methods\n");
-        for ( Method m : methods ) {
-            if ( m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName()) ) {
-                sb.append(theClass.getSimpleName()).append(" : ");
-                sb.append(Modifier.toString(m.getModifiers())).append(" ");
-                sb.append(m.getReturnType()).append(" ");
-                sb.append(m.getName()).append("(");
 
-                Class<?>[] params = m.getParameterTypes();
-                sb.append(generateParamsInfoString(params));
+        methods = sortMethodArray(methods);
 
+        for (Method m : methods) {
+            if ( methodIsDeclaredInThisClass(m, theClass) ) {
+                sb.append(classNameAndColon(theClass));
+                sb.append(modifiers(m));
+                sb.append(methodReturnType(m));
+                sb.append(methodName(m));
+                sb.append(params(m));
                 sb.append("\n");
             }
         }
-
         return sb.toString();
     }
 
-    private String generateParamsInfoString(Class<?>[] params) {
+    private String classNameAndColon(Class<?> theClass) {
+        return theClass.getSimpleName() + " : ";
+    }
+
+    private String modifiers(Field f) {
+        return Modifier.toString(f.getModifiers()) + " ";
+    }
+
+    private String modifiers(Constructor c) {
+        return Modifier.toString(c.getModifiers()) + " ";
+    }
+
+    private String modifiers(Method m) {
+        return Modifier.toString((m.getModifiers())) + " ";
+    }
+
+    private String fieldType(Field f) {
+        return f.getType().getSimpleName() + " ";
+    }
+
+    private String fieldName(Field f) {
+        return f.getName() + "\n";
+    }
+
+    private String constructorName(Constructor c) {
+        return c.getName() + "(";
+    }
+
+    private String methodReturnType(Method m) {
+        return m.getReturnType() + " ";
+    }
+
+    private String methodName(Method m) {
+        return m.getName() + "(";
+    }
+
+    private String params(Constructor c) {
+        return paramsInfoString(c.getParameterTypes());
+    }
+
+    private String params(Method m) {
+        return paramsInfoString(m.getParameterTypes());
+    }
+
+    // @@@ Refactor
+    private String paramsInfoString(Class<?>[] params) {
         StringBuilder sb = new StringBuilder();
 
-        if ( params.length == 0 ) {
+        if (params.length == 0) {
             sb.append(")");
-        }
-        else {
-            for ( int i = 0; i < params.length; i++ ) {
+        } else {
+            for (int i = 0; i < params.length; i++) {
                 sb.append(params[i].getName());
                 if (i < params.length - 1) {
                     sb.append(", ");
@@ -196,7 +209,42 @@ public class Reflector {
                 }
             }
         }
+        return sb.toString();
+    }
 
+    private Method[] sortMethodArray(Method[] m) {
+        Arrays.sort(m, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return m;
+    }
+
+    private boolean methodIsDeclaredInThisClass(Method m, Class<?> theClass) {
+        return m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName());
+    }
+
+    // p4.2
+    private boolean hasASuperClass(Class<?> theClass) {
+        return !theClass.getSimpleName().equals("Object");
+    }
+
+    // p5.1 @@@ Refactor
+    private String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
+        StringBuilder sb = new StringBuilder();
+
+        int numSpaces = 0;
+        for (int i = classHierarchyInReverse.size() - 1; i >= 0; i--) {
+            for (int j = 0; j < numSpaces; j++) {
+                sb.append(" ");
+            }
+            numSpaces += 2;
+            sb.append(classHierarchyInReverse.get(i).getName());
+            sb.append("\n");
+        }
         return sb.toString();
     }
 }
+
