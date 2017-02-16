@@ -6,8 +6,7 @@ import org.junit.Test;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by johnsquier on 2/15/17.
@@ -250,4 +249,76 @@ public class ReflectionUtilsTest {
         Assert.assertEquals(expected, actual);
     }
 
+    @Test
+    public void instantiateClassHierarchyObject() {
+        List<Object> expected = new ArrayList<>();
+        expected.add(new Object());
+
+        List<Object> actual = null;
+        try {
+            actual = reflectionUtils.instantiateClassHierarchy(new Object());
+        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
+            classInHierarchyLacksNoArgConstructor.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(actual.size() == 1);
+        Assert.assertTrue(actual.get(0).getClass().getSimpleName().equals(expected.get(0).getClass().getSimpleName()));
+    }
+
+    @Test
+    public void instantiateClassHierarchyString() {
+        List<Object> expected = new ArrayList<>();
+        expected.add(new String());
+        expected.add(new Object());
+
+        List<Object> actual = null;
+        try {
+            actual = reflectionUtils.instantiateClassHierarchy(new String());
+        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
+            classInHierarchyLacksNoArgConstructor.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(actual.size() == 2);
+        Assert.assertEquals(expected.get(0).getClass().getSimpleName(), actual.get(0).getClass().getSimpleName());
+        Assert.assertEquals(expected.get(1).getClass().getSimpleName(), actual.get(1).getClass().getSimpleName());
+    }
+
+    @Test
+    public void instantiateClassHierarchyArrayList() {
+        List<Object> expected = new ArrayList<>();
+        expected.add(new ArrayList<>());
+        // two abstract classes between ArrayList() and Object()
+        expected.add(new Object());
+
+        List<Object> actual = null;
+        try {
+            actual = reflectionUtils.instantiateClassHierarchy(new ArrayList<>());
+        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
+            classInHierarchyLacksNoArgConstructor.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(actual.size() == 2);
+        Assert.assertEquals(expected.get(0).getClass().getSimpleName(), actual.get(0).getClass().getSimpleName());
+        Assert.assertEquals(expected.get(1).getClass().getSimpleName(), actual.get(1).getClass().getSimpleName());
+    }
+
+    @Test(expected = ClassInHierarchyLacksNoArgConstructor.class)
+    public void instantiateClassHierarchyBoolean()
+            throws IllegalAccessException, ClassInHierarchyLacksNoArgConstructor, InstantiationException {
+        reflectionUtils.instantiateClassHierarchy(new Boolean(true));
+    }
+
+    // @@@ add tests for the other exceptions
 }

@@ -7,7 +7,8 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
- * Created by johnsquier on 2/15/17.
+ * Created by John A. Squier on 2/15/17.
+ * @@@ multiple refactor spots in src
  */
 public class ReflectionUtils {
 
@@ -60,11 +61,28 @@ public class ReflectionUtils {
         return generateClassHierarchyString(classHierarchyInReverse);
     }
 
-    // 6
-    public List<Object> instantiateClassHierarcy(Object o) {
-        return null;
+    // @@@ refactor
+    public List<Object> instantiateClassHierarchy(Object o)
+            throws ClassInHierarchyLacksNoArgConstructor, InstantiationException, IllegalAccessException {
+        List<Object> theHierarchy = new ArrayList<>();
+
+        while ( hasASuperClass(o.getClass()) || isObjectClass(o) ) {
+            if ( OHasANoArgConstructor(o) ) {
+                theHierarchy.add(instantiate(o));
+            } else {
+                throw new ClassInHierarchyLacksNoArgConstructor();
+            }
+            if ( !isObjectClass(o) ) {
+                o = getNextConcreteClass(o);
+            }
+            else {
+                break;
+            }
+        }
+        return theHierarchy;
     }
 
+    // @@@ refactor
     private Class<?> getClassName(String aClassName) {
         Class<?> theInterfaceClass;
 
@@ -83,12 +101,13 @@ public class ReflectionUtils {
     private boolean checkClassForInterface(Class<?> theClass, Class<?> theInterfaceClass) {
         Class<?>[] implementedInterfaces = theClass.getInterfaces();
 
+        boolean result = false;
         for ( Class c : implementedInterfaces ) {
             if ( c.getName().equals(theInterfaceClass.getName()) ) {
-                return true;
+                result = true;
             }
         }
-        return false;
+        return result;
     }
 
     private String classInfoString(Class<?> theClass) {
@@ -136,6 +155,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
+    // @@@ refactor loop body into sb.append(methodInfoString(m))
     private String methodsInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
@@ -164,45 +184,6 @@ public class ReflectionUtils {
             sb.append(")");
         } else {
             sb.append(allParams(params));
-        }
-        return sb.toString();
-    }
-
-    // @@@ Refactor
-    private String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
-        StringBuilder sb = new StringBuilder();
-
-        int numSpaces = 0;
-        for (int i = classHierarchyInReverse.size() - 1; i >= 0; i--) {
-            for (int j = 0; j < numSpaces; j++) {
-                sb.append(" ");
-            }
-            numSpaces += 2;
-            sb.append(classHierarchyInReverse.get(i).getName());
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    private String params(Constructor c) {
-        return paramsInfoString(c.getParameterTypes());
-    }
-
-    private String params(Method m) {
-        return paramsInfoString(m.getParameterTypes());
-    }
-
-    private String allParams(Class<?>[] params) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < params.length; i++) {
-            sb.append(params[i].getName());
-
-            if (iIsTheLastParam(i, params.length)) {
-                sb.append(")");
-            } else {
-                sb.append(", ");
-            }
         }
         return sb.toString();
     }
@@ -243,14 +224,32 @@ public class ReflectionUtils {
         return m.getName() + "(";
     }
 
-    private Method[] sortMemberArray(Method[] m) {
-        Arrays.sort(m, new Comparator<Method>() {
-            @Override
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        return m;
+    private String params(Constructor c) {
+        return paramsInfoString(c.getParameterTypes());
+    }
+
+    private String params(Method m) {
+        return paramsInfoString(m.getParameterTypes());
+    }
+
+    private String allParams(Class<?>[] params) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < params.length; i++) {
+            sb.append(params[i].getName());
+            sb.append(paramDelimiter(i, params));
+        }
+        return sb.toString();
+    }
+
+    private String paramDelimiter(int i, Class<?>[] a) {
+        String result;
+        if (iIsTheLastParam(i, a.length)) {
+            result = ")";
+        } else {
+            result = ", ";
+        }
+        return result;
     }
 
     private Field[] sortMemberArray(Field[] f) {
@@ -263,20 +262,88 @@ public class ReflectionUtils {
         return f;
     }
 
-    private boolean methodIsDeclaredInThisClass(Method m, Class<?> theClass) {
-        return m.getDeclaringClass().getSimpleName().equals(theClass.getSimpleName());
+    private Method[] sortMemberArray(Method[] m) {
+        Arrays.sort(m, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        return m;
     }
 
-    private boolean hasASuperClass(Class<?> theClass) {
-        return !theClass.getSimpleName().equals("Object");
+    // @@@ Refactor
+    private String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
+        StringBuilder sb = new StringBuilder();
+
+        int numSpaces = 0;
+        for (int i = classHierarchyInReverse.size() - 1; i >= 0; i--) {
+            for (int j = 0; j < numSpaces; j++) {
+                sb.append(" ");
+            }
+            numSpaces += 2;
+            sb.append(classHierarchyInReverse.get(i).getName());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
-    private boolean empty(Class<?>[] params) {
-        return params.length == 0;
+    // @@@ refactor
+    private Object getNextConcreteClass(Object o) throws IllegalAccessException, InstantiationException {
+        Class<?> theClass = o.getClass();
+        Class<?> theSuperClass = theClass.getSuperclass();
+
+        if ( isConcrete(theSuperClass) ) {
+            return theSuperClass.newInstance();
+        }
+        else {
+            while ( hasASuperClass(theSuperClass) ) {
+                if ( isConcrete(theSuperClass) ) {
+                    return theSuperClass;
+                }
+                theSuperClass = theSuperClass.getSuperclass();
+            }
+        }
+        return theSuperClass.newInstance();
+    }
+
+    private Object instantiate(Object o) throws IllegalAccessException, InstantiationException {
+        Class<?> theClass = o.getClass();
+        return theClass.newInstance();
+    }
+
+    private boolean hasASuperClass(Class<?> c) {
+        return !c.getSimpleName().equals("Object");
+    }
+
+    private boolean methodIsDeclaredInThisClass(Method m, Class<?> c) {
+        return m.getDeclaringClass().getSimpleName().equals(c.getSimpleName());
     }
 
     private boolean iIsTheLastParam(int i, int n) {
         return i == n-1;
     }
-}
 
+    private boolean empty(Class<?>[] a) {
+        return a.length == 0;
+    }
+
+    private boolean OHasANoArgConstructor(Object o) {
+        Constructor<?>[] constructors = o.getClass().getConstructors();
+
+        for (Constructor<?> c : constructors ) {
+            if ( c.getParameterTypes().length == 0 ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isConcrete(Class<?> c) {
+        return false;
+    }
+
+    private boolean isObjectClass(Object o) {
+        return o.getClass().getSimpleName().equals("Object");
+    }
+}
