@@ -5,10 +5,19 @@ package squier.john.unitcorn;
  */
 public class Result {
 
+    private String methodRun;
     private TestStatus status;
+    private Throwable thrownDuringInvoke = null;
 
-    public Result(TestStatus status) {
+    public Result(String methodRun, TestStatus status) {
+        this.methodRun = methodRun;
         this.status = status;
+    }
+
+    public Result(String methodRun, TestStatus status, Throwable thrownDuringInvoke) {
+        this.methodRun = methodRun;
+        this.status = status;
+        this.thrownDuringInvoke = thrownDuringInvoke;
     }
 
     public TestStatus getStatus() {
@@ -16,6 +25,6 @@ public class Result {
     }
 
     public boolean equals(Result other) {
-        return status.equals(other.status);
+        return status.equals(other.status) && methodRun.equalsIgnoreCase(other.methodRun);
     }
 }

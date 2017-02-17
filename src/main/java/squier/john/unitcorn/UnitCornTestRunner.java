@@ -1,8 +1,5 @@
 package squier.john.unitcorn;
 
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.InitializationError;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -17,19 +14,12 @@ public class UnitCornTestRunner {
     //  passes those names to runTest(class, string) and handles the results
     //  pretty prints results
     public String runTests(Class c) {
+        // build up a list of test results
         return null;
     }
 
-    // runs a testMethod in a class and returns a result;
     public Result runTest(Class<?> c, String methodName) {
-        Result result;
-        if ( classHasMethod(c, methodName) ) {
-            result = runMethod(c, methodName);
-        }
-        else {
-            result = new Result(TestStatus.NON_EXISTENT_METHOD);
-        }
-        return result;
+        return runMethod(c, methodName);
     }
 
     private boolean classHasMethod(Class<?> c, String methodName) {
@@ -47,36 +37,23 @@ public class UnitCornTestRunner {
         return classHasMethod;
     }
 
-    // gotta catch errors thrown by Junit test methods
     private Result runMethod(Class<?> c, String methodName) {
-        Method method = null;
-        try {
-            method = c.getMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace(); // should never happen
-        }
-
-        Result result = null;
-
-        Object ofClassC = null;
-        try {
-            ofClassC = instantiateObjectFromClass(c);
-        } catch (IllegalAccessException | InstantiationException e) {
-            result = new Result(TestStatus.CLASS_INSTANTIATION_FAILURE);
-        }
-
-        if ( method != null && ofClassC != null ) {
+        Result result;
             try {
-                method.invoke(ofClassC);
-                result = new Result(TestStatus.SUCCESS);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Method method = c.getMethod(methodName);
+                Object object = instantiateObjectFromClass(c);
+                Object theResult = method.invoke(object);
+                result = new Result(methodName, TestStatus.SUCCESS);
+            } catch (NoSuchMethodException e) {
+                result = new Result(methodName, TestStatus.NON_EXISTENT_METHOD);
+            } catch (IllegalAccessException | InstantiationException e) {
+                result = new Result(methodName, TestStatus.CLASS_INSTANTIATION_FAILURE);
             } catch (InvocationTargetException e) {
                 // Test Failure
                 // Look at e for useful information including Assert messages
                 // System.out.println(e.getCause());
+                result = new Result(methodName, TestStatus.FAILURE, e);
             }
-        }
         return result;
     }
 

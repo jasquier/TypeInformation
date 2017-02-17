@@ -12,9 +12,9 @@ public class ResultTest {
 
     @Before
     public void setup() {
-        success1 = new Result(TestStatus.SUCCESS);
-        success2 = new Result(TestStatus.SUCCESS);
-        failure = new Result(TestStatus.FAILURE);
+        success1 = new Result("", TestStatus.SUCCESS);
+        success2 = new Result("", TestStatus.SUCCESS);
+        failure = new Result("", TestStatus.FAILURE);
     }
 
     @Test
