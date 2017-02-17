@@ -1,4 +1,4 @@
-package squier.john.typeInformation;
+package squier.john.unitcorn;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,6 +9,7 @@ import java.util.*;
 /**
  * Created by John A. Squier on 2/15/17.
  * @@@ multiple refactor spots in src
+ * should I make everything in here static?
  */
 public class ReflectionUtils {
 
@@ -72,6 +73,7 @@ public class ReflectionUtils {
             } else {
                 throw new ClassInHierarchyLacksNoArgConstructor();
             }
+
             if ( !isObjectClass(o) ) {
                 o = getNextConcreteClass(o);
             }
@@ -82,13 +84,13 @@ public class ReflectionUtils {
         return theHierarchy;
     }
 
-    // @@@ refactor
+    // @@@ refactor?
     private Class<?> getClassName(String aClassName) {
-        Class<?> theInterfaceClass;
-
         if ( aClassName == null ) {
             return null;
         }
+
+        Class<?> theInterfaceClass;
         try {
             theInterfaceClass = Class.forName(aClassName);
         } catch (ClassNotFoundException e) {
@@ -129,10 +131,7 @@ public class ReflectionUtils {
         fields = sortMemberArray(fields);
 
         for (Field f : fields) {
-            sb.append(classNameHeader(theClass));
-            sb.append(modifiers(f));
-            sb.append(fieldType(f));
-            sb.append(fieldName(f));
+            sb.append(generateFieldInfo(f, theClass));
         }
         return sb.toString();
     }
@@ -146,16 +145,11 @@ public class ReflectionUtils {
         // sort constructors by name?
 
         for (Constructor<?> c : constructors) {
-            sb.append(classNameHeader(theClass));
-            sb.append(modifiers(c));
-            sb.append(constructorName(c));
-            sb.append(params(c));
-            sb.append("\n");
+            sb.append(generateConstructorInfo(c, theClass));
         }
         return sb.toString();
     }
 
-    // @@@ refactor loop body into sb.append(methodInfoString(m))
     private String methodsInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
 
@@ -166,14 +160,39 @@ public class ReflectionUtils {
 
         for (Method m : methods) {
             if ( methodIsDeclaredInThisClass(m, theClass) ) {
-                sb.append(classNameHeader(theClass));
-                sb.append(modifiers(m));
-                sb.append(methodReturnType(m));
-                sb.append(methodName(m));
-                sb.append(params(m));
-                sb.append("\n");
+                sb.append(generateMethodInfo(m, theClass));
             }
         }
+        return sb.toString();
+    }
+
+    private String generateFieldInfo(Field f, Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(classNameHeader(theClass));
+        sb.append(modifiers(f));
+        sb.append(fieldType(f));
+        sb.append(fieldName(f));
+        return sb.toString();
+    }
+
+    private String generateConstructorInfo(Constructor<?> c, Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(classNameHeader(theClass));
+        sb.append(modifiers(c));
+        sb.append(constructorName(c));
+        sb.append(params(c));
+        sb.append("\n");
+        return sb.toString();
+    }
+
+    private String generateMethodInfo(Method m, Class<?> theClass) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(classNameHeader(theClass));
+        sb.append(modifiers(m));
+        sb.append(methodReturnType(m));
+        sb.append(methodName(m));
+        sb.append(params(m));
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -290,25 +309,25 @@ public class ReflectionUtils {
 
     // @@@ refactor
     private Object getNextConcreteClass(Object o) throws IllegalAccessException, InstantiationException {
-        Class<?> theSuperClass = o.getClass().getSuperclass();
+        Class<?> superClass = o.getClass().getSuperclass();
 
-        if ( hasASuperClass(o.getClass()) && isConcrete(theSuperClass) ) {
-            return theSuperClass.newInstance();
+        if ( hasASuperClass(o.getClass()) && isConcrete(superClass) ) {
+            return superClass.newInstance();
         }
         else {
-            while ( hasASuperClass(theSuperClass) ) {
-                if ( isConcrete(theSuperClass) ) {
-                    return theSuperClass.newInstance();
+            while ( hasASuperClass(superClass) ) {
+                if ( isConcrete(superClass) ) {
+                    return superClass.newInstance();
                 }
-                theSuperClass = theSuperClass.getSuperclass();
+                superClass = superClass.getSuperclass();
             }
         }
-        return theSuperClass.newInstance();
+        return superClass.newInstance();
     }
 
     private Object instantiate(Object o) throws IllegalAccessException, InstantiationException {
-        Class<?> theClass = o.getClass();
-        return theClass.newInstance();
+        Class<?> c = o.getClass();
+        return c.newInstance();
     }
 
     private boolean hasASuperClass(Class<?> c) {

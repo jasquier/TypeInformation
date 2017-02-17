@@ -1,14 +1,12 @@
-package squier.john.typeInformation;
+package squier.john.unitcorn;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.nio.file.OpenOption;
 import java.util.*;
 import java.util.List;
 
@@ -17,15 +15,9 @@ import java.util.List;
  */
 public class ReflectionUtilsTest {
 
-    ReflectionUtils reflectionUtils;
-
-    @Before
-    public void setup() {
-        reflectionUtils = new ReflectionUtils();
-    }
-
     @Test
     public void objectDoesImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
         boolean actual = reflectionUtils.classImplementsInterface(new Scanner(System.in), "java.io.Closeable");
 
@@ -35,6 +27,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void objectDoesNotImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Integer(10), "java.lang.Iterable");
 
@@ -44,6 +37,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classObjectDoesImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
         boolean actual = reflectionUtils.classImplementsInterface("string".getClass(), "java.lang.CharSequence");
 
@@ -53,6 +47,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classObjectDoesNotImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Integer(10).getClass(), "java.lang.Iterable");
 
@@ -62,6 +57,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classNameDoesImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
         boolean actual = reflectionUtils.classImplementsInterface("java.lang.String", "java.lang.CharSequence");
 
@@ -71,6 +67,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classNameDoesNotImplementInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "java.lang.Iterable");
 
@@ -80,6 +77,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareObjectToNonExistentInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
 
@@ -89,6 +87,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassObjectToNonExistentInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), "abra.kadabra.Allakhazham");
 
@@ -98,6 +97,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassNameToNonExistentInterfaceTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "abra.kadabra.Allakhazham");
 
@@ -107,6 +107,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareObjectToNullInterface() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object(), null);
 
@@ -116,6 +117,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassObjectToNullInterface() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), null);
 
@@ -125,6 +127,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassNameToNullInterface() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", null);
 
@@ -134,6 +137,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void stringIsNotAClassNameButAStringLiteralTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
         boolean actual = reflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
 
@@ -143,6 +147,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void listAllMembersBufferedWriterTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "Fields\n" +
                 "Constructors\n" +
                 "BufferedWriter : public java.io.BufferedWriter(java.io.Writer)\n" +
@@ -194,6 +199,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void listAllMembersBooleanTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "Fields\n" +
                 "Boolean : public static final Boolean FALSE\n" +
                 "Boolean : public static final Boolean TRUE\n" +
@@ -239,6 +245,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void getClassHierarchyBooleanTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "java.lang.Object\n  java.lang.Boolean\n";
         String actual = reflectionUtils.getClassHierarchy(new Boolean(true));
 
@@ -247,6 +254,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void getClassHierarchyTreeMapTest() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "java.lang.Object\n  java.util.AbstractMap\n    java.util.TreeMap\n";
         String actual = reflectionUtils.getClassHierarchy(new TreeMap<String, String>());
 
@@ -255,6 +263,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyObject() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new Object());
 
@@ -275,6 +284,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyString() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new String());
         expected.add(new Object());
@@ -297,6 +307,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyArrayList() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new ArrayList<>());
         expected.add(new Object());
@@ -319,6 +330,7 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyJPanel() {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new JPanel());
         expected.add(new Container());
@@ -344,6 +356,7 @@ public class ReflectionUtilsTest {
     @Test(expected = ClassInHierarchyLacksNoArgConstructor.class)
     public void instantiateClassHierarchyBoolean()
             throws IllegalAccessException, ClassInHierarchyLacksNoArgConstructor, InstantiationException {
+        ReflectionUtils reflectionUtils = new ReflectionUtils();
         reflectionUtils.instantiateClassHierarchy(new Boolean(true));
     }
 

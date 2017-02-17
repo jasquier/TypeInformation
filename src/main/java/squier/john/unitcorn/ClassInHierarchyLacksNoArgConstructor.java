@@ -1,4 +1,4 @@
-package squier.john.typeInformation;
+package squier.john.unitcorn;
 
 /**
  * Created by johnsquier on 2/16/17.

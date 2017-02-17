@@ -1,4 +1,4 @@
-package squier.john.typeInformation;
+package squier.john.unitcorn;
 
 import org.junit.Before;
 
