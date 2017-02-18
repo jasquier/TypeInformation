@@ -106,7 +106,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void tryToCompareObjectToNullInterface() {
+    public void tryToCompareObjectToNullInterfaceTest() {
         ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object(), null);
@@ -116,7 +116,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void tryToCompareClassObjectToNullInterface() {
+    public void tryToCompareClassObjectToNullInterfaceTest() {
         ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), null);
@@ -126,7 +126,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void tryToCompareClassNameToNullInterface() {
+    public void tryToCompareClassNameToNullInterfaceTest() {
         ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
         boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", null);
@@ -262,7 +262,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void instantiateClassHierarchyObject() {
+    public void instantiateClassHierarchyObjectTest() {
         ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new Object());

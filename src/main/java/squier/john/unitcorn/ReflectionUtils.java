@@ -9,27 +9,19 @@ import java.util.*;
 /**
  * Created by John A. Squier on 2/15/17.
  * @@@ multiple refactor spots in src
- * should I make everything in here static?
  */
 public class ReflectionUtils {
 
     public boolean classImplementsInterface(String aClassName, String anInterfaceName) {
-        Class<?> theClass = getClassName(aClassName);
-
-        if ( theClass == null ) { // more readable than try-catch?
-            return classImplementsInterface((Object) aClassName, anInterfaceName);
-        } else {
-            return classImplementsInterface(theClass, anInterfaceName);
-        }
+        Class<?> classClass = getClassClassFromString(aClassName);
+        Class<?> interfaceClassClass = getClassClassFromString(anInterfaceName);
+        // will short-circuit if interfaceClassClass == null
+        return interfaceClassClass != null && ((classClass == null) ? checkClassForInterface(aClassName.getClass(), interfaceClassClass) :
+                checkClassForInterface(classClass, interfaceClassClass));
     }
 
     public boolean classImplementsInterface(Class<?> theClass, String anInterface) {
-        Class<?> theInterfaceClass = getClassName(anInterface);
-
-        if ( theInterfaceClass == null ) { // same here?
-            return false;
-        }
-        return checkClassForInterface(theClass, theInterfaceClass);
+        return classImplementsInterface(theClass.getName(), anInterface);
     }
 
     public boolean classImplementsInterface(Object o, String theInterface) {
@@ -37,24 +29,22 @@ public class ReflectionUtils {
     }
 
     public String listAllMembers(Object o) {
+        Class<?> c = o.getClass();
         StringBuilder sb = new StringBuilder();
+        sb.append(classInfoString(c));
 
-        Class<?> theClass = o.getClass();
-        sb.append(classInfoString(theClass));
-
-        while ( hasASuperClass(theClass) ) {
-            theClass = theClass.getSuperclass();
-            sb.append(classInfoString(theClass));
+        while ( hasASuperClass(c) ) {
+            c = c.getSuperclass();
+            sb.append(classInfoString(c));
         }
         return sb.toString();
     }
 
     public String getClassHierarchy(Object o) {
+        Class<?> theClass = o.getClass();
         List<Class<?>> classHierarchyInReverse = new ArrayList<>();
 
-        Class<?> theClass = o.getClass();
         classHierarchyInReverse.add(theClass);
-
         while ( hasASuperClass(theClass) ) {
             theClass = theClass.getSuperclass();
             classHierarchyInReverse.add(theClass);
@@ -84,51 +74,41 @@ public class ReflectionUtils {
         return theHierarchy;
     }
 
-    // @@@ refactor?
-    private Class<?> getClassName(String aClassName) {
+    private Class<?> getClassClassFromString(String aClassName) {
         if ( aClassName == null ) {
             return null;
         }
-
-        Class<?> theInterfaceClass;
         try {
-            theInterfaceClass = Class.forName(aClassName);
-        } catch (ClassNotFoundException e) {
-            System.err.println("Class: " + aClassName + " not found");
+            return Class.forName(aClassName);
+        } catch ( ClassNotFoundException e ) {
             return null;
         }
-        return theInterfaceClass;
     }
 
     private boolean checkClassForInterface(Class<?> theClass, Class<?> theInterfaceClass) {
         Class<?>[] implementedInterfaces = theClass.getInterfaces();
-
-        boolean result = false;
         for ( Class c : implementedInterfaces ) {
             if ( c.getName().equals(theInterfaceClass.getName()) ) {
-                result = true;
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
     private String classInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
-
         sb.append(fieldsInfoString(theClass));
         sb.append(constructorInfoString(theClass));
         sb.append(methodsInfoString(theClass));
-
         return sb.toString();
     }
 
     private String fieldsInfoString(Class<?> theClass) {
-        StringBuilder sb = new StringBuilder();
-
         Field[] fields = theClass.getFields();
-        sb.append("Fields\n");
-
         fields = sortMemberArray(fields);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Fields\n");
 
         for (Field f : fields) {
             sb.append(generateFieldInfo(f, theClass));
@@ -137,12 +117,11 @@ public class ReflectionUtils {
     }
 
     private String constructorInfoString(Class<?> theClass) {
-        StringBuilder sb = new StringBuilder();
-
         Constructor<?>[] constructors = theClass.getConstructors();
-        sb.append("Constructors\n");
-
         // sort constructors by name?
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Constructors\n");
 
         for (Constructor<?> c : constructors) {
             sb.append(generateConstructorInfo(c, theClass));
@@ -151,12 +130,11 @@ public class ReflectionUtils {
     }
 
     private String methodsInfoString(Class<?> theClass) {
-        StringBuilder sb = new StringBuilder();
-
         Method[] methods = theClass.getMethods();
-        sb.append("Methods\n");
-
         methods = sortMemberArray(methods);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Methods\n");
 
         for (Method m : methods) {
             if ( methodIsDeclaredInThisClass(m, theClass) ) {
@@ -198,7 +176,6 @@ public class ReflectionUtils {
 
     private String paramsInfoString(Class<?>[] params) {
         StringBuilder sb = new StringBuilder();
-
         if ( empty(params) ) {
             sb.append(")");
         } else {

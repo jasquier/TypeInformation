@@ -1,11 +1,8 @@
 package squier.john.unitcorn;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runners.ParentRunner;
-import org.junit.runners.model.InitializationError;
 
 /**
  * Created by johnsquier on 2/16/17.
@@ -15,7 +12,7 @@ public class UnitCornTestRunnerTest {
     UnitCornTestRunner unitCornTestRunner;
 
     @Before
-    public void setup() throws InitializationError {
+    public void setup() {
         unitCornTestRunner = new UnitCornTestRunner();
     }
 
@@ -44,9 +41,9 @@ public class UnitCornTestRunnerTest {
     }
 
     @Test
-    public void runTestThatDoesntExist() {
-        Result expected = new Result("testThatDoesntExist",TestStatus.NON_EXISTENT_METHOD);
-        Result actual = unitCornTestRunner.runTest(DummyTests.class, "testThatDoesntExist");
+    public void runTestThatDoesNotExist() {
+        Result expected = new Result("testThatDoesNotExist",TestStatus.NON_EXISTENT_METHOD);
+        Result actual = unitCornTestRunner.runTest(DummyTests.class, "testThatDoesNotExist");
 
         Assert.assertTrue(expected.equals(actual));
     }
@@ -59,5 +56,95 @@ public class UnitCornTestRunnerTest {
         Result actual = unitCornTestRunner.runTest(PrivateConstructor.class, "aMethod");
 
         Assert.assertTrue(expected.equals(actual));
+    }
+
+    @Test
+    public void runTestsInClassDummyTestsAndGenerateResults() {
+        String expected = "Class Tested : DummyTests\n" +
+                            "\t  Method : testThatFails()\n" +
+                            "\t  Result : FAILURE\n" +
+                            "\n" +
+                            "\t  Method : testThatPasses()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "1 Test Passed 1 Test Failed 0 Tests Broken\n";
+        String actual = unitCornTestRunner.runTests(DummyTests.class);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runTestsInReflectionUtilsTestAndGenerateResults() {
+        String expected = "Class Tested : ReflectionUtilsTest\n" +
+                            "\t  Method : classNameDoesImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : classNameDoesNotImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : classObjectDoesImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : classObjectDoesNotImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : getClassHierarchyBooleanTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : getClassHierarchyTreeMapTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : instantiateClassHierarchyArrayList()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" + // myTestRunner makes this test fail since I don't check for exceptions
+                            "\t  Method : instantiateClassHierarchyBoolean()\n" +
+                            "\t  Result : FAILURE\n" +
+                            "\n" +
+                            "\t  Method : instantiateClassHierarchyJPanel()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : instantiateClassHierarchyObjectTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : instantiateClassHierarchyString()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : listAllMembersBooleanTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : listAllMembersBufferedWriterTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : objectDoesImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : objectDoesNotImplementInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : stringIsNotAClassNameButAStringLiteralTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareClassNameToNonExistentInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareClassNameToNullInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareClassObjectToNonExistentInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareClassObjectToNullInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareObjectToNonExistentInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : tryToCompareObjectToNullInterfaceTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "21 Tests Passed 1 Test Failed 0 Tests Broken\n";
+        String actual = unitCornTestRunner.runTests(ReflectionUtilsTest.class);
+
+        Assert.assertEquals(expected, actual);
     }
 }

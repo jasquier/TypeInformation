@@ -5,26 +5,33 @@ package squier.john.unitcorn;
  */
 public class Result {
 
-    private String methodRun;
+    private String nameOfMethodRun;
     private TestStatus status;
-    private Throwable thrownDuringInvoke = null;
+    private Throwable thrownDuringMethodInvoke;
 
-    public Result(String methodRun, TestStatus status) {
-        this.methodRun = methodRun;
-        this.status = status;
+    public Result(String nameOfMethodRun, TestStatus status) {
+        this(nameOfMethodRun, status, null);
     }
 
-    public Result(String methodRun, TestStatus status, Throwable thrownDuringInvoke) {
-        this.methodRun = methodRun;
+    public Result(String nameOfMethodRun, TestStatus status, Throwable thrownDuringMethodInvoke) {
+        this.nameOfMethodRun = nameOfMethodRun;
         this.status = status;
-        this.thrownDuringInvoke = thrownDuringInvoke;
+        this.thrownDuringMethodInvoke = thrownDuringMethodInvoke;
+    }
+
+    public boolean equals(Result other) {
+        return status.equals(other.status) && nameOfMethodRun.equalsIgnoreCase(other.nameOfMethodRun);
+    }
+
+    public String getNameOfMethodRun() {
+        return nameOfMethodRun;
     }
 
     public TestStatus getStatus() {
         return status;
     }
 
-    public boolean equals(Result other) {
-        return status.equals(other.status) && methodRun.equalsIgnoreCase(other.methodRun);
+    public Throwable getThrownDuringMethodInvoke() {
+        return thrownDuringMethodInvoke;
     }
 }

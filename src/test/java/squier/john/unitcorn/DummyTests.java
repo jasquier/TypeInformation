@@ -15,6 +15,7 @@ public class DummyTests {
 
     @Test
     public void testThatFails() {
+        //@SuppressWarnings()
         Assert.assertTrue("This test is designed to fail as part of the UnitCornTestRunnerTest class",
                 false);
     }
