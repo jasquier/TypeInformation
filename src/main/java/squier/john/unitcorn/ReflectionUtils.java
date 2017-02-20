@@ -9,10 +9,11 @@ import java.util.*;
 /**
  * Created by John A. Squier on 2/15/17.
  * @@@ multiple refactor spots in src
+ * @@@ Class is stateless? gonna go static since these are all utility methods
  */
 public class ReflectionUtils {
 
-    public boolean classImplementsInterface(String aClassName, String anInterfaceName) {
+    public static boolean classImplementsInterface(String aClassName, String anInterfaceName) {
         Class<?> classClass = getClassClassFromString(aClassName);
         Class<?> interfaceClassClass = getClassClassFromString(anInterfaceName);
         // will short-circuit if interfaceClassClass == null
@@ -20,15 +21,15 @@ public class ReflectionUtils {
                 checkClassForInterface(classClass, interfaceClassClass));
     }
 
-    public boolean classImplementsInterface(Class<?> theClass, String anInterface) {
+    public static boolean classImplementsInterface(Class<?> theClass, String anInterface) {
         return classImplementsInterface(theClass.getName(), anInterface);
     }
 
-    public boolean classImplementsInterface(Object o, String theInterface) {
+    public static boolean classImplementsInterface(Object o, String theInterface) {
         return classImplementsInterface(o.getClass(), theInterface);
     }
 
-    public String listAllMembers(Object o) {
+    public static String listAllMembers(Object o) {
         Class<?> c = o.getClass();
         StringBuilder sb = new StringBuilder();
         sb.append(classInfoString(c));
@@ -40,7 +41,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    public String getClassHierarchy(Object o) {
+    public static String getClassHierarchy(Object o) {
         Class<?> theClass = o.getClass();
         List<Class<?>> classHierarchyInReverse = new ArrayList<>();
 
@@ -53,7 +54,7 @@ public class ReflectionUtils {
     }
 
     // @@@ refactor
-    public List<Object> instantiateClassHierarchy(Object o)
+    public static List<Object> instantiateClassHierarchy(Object o)
             throws ClassInHierarchyLacksNoArgConstructor, InstantiationException, IllegalAccessException {
         List<Object> theHierarchy = new ArrayList<>();
 
@@ -74,7 +75,7 @@ public class ReflectionUtils {
         return theHierarchy;
     }
 
-    private Class<?> getClassClassFromString(String aClassName) {
+    private static Class<?> getClassClassFromString(String aClassName) {
         if ( aClassName == null ) {
             return null;
         }
@@ -85,7 +86,7 @@ public class ReflectionUtils {
         }
     }
 
-    private boolean checkClassForInterface(Class<?> theClass, Class<?> theInterfaceClass) {
+    private static boolean checkClassForInterface(Class<?> theClass, Class<?> theInterfaceClass) {
         Class<?>[] implementedInterfaces = theClass.getInterfaces();
         for ( Class c : implementedInterfaces ) {
             if ( c.getName().equals(theInterfaceClass.getName()) ) {
@@ -95,7 +96,7 @@ public class ReflectionUtils {
         return false;
     }
 
-    private String classInfoString(Class<?> theClass) {
+    private static String classInfoString(Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
         sb.append(fieldsInfoString(theClass));
         sb.append(constructorInfoString(theClass));
@@ -103,7 +104,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String fieldsInfoString(Class<?> theClass) {
+    private static String fieldsInfoString(Class<?> theClass) {
         Field[] fields = theClass.getFields();
         fields = sortMemberArray(fields);
 
@@ -116,7 +117,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String constructorInfoString(Class<?> theClass) {
+    private static String constructorInfoString(Class<?> theClass) {
         Constructor<?>[] constructors = theClass.getConstructors();
         // sort constructors by name?
 
@@ -129,7 +130,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String methodsInfoString(Class<?> theClass) {
+    private static String methodsInfoString(Class<?> theClass) {
         Method[] methods = theClass.getMethods();
         methods = sortMemberArray(methods);
 
@@ -144,7 +145,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String generateFieldInfo(Field f, Class<?> theClass) {
+    private static String generateFieldInfo(Field f, Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
         sb.append(classNameHeader(theClass));
         sb.append(modifiers(f));
@@ -153,7 +154,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String generateConstructorInfo(Constructor<?> c, Class<?> theClass) {
+    private static String generateConstructorInfo(Constructor<?> c, Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
         sb.append(classNameHeader(theClass));
         sb.append(modifiers(c));
@@ -163,7 +164,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String generateMethodInfo(Method m, Class<?> theClass) {
+    private static String generateMethodInfo(Method m, Class<?> theClass) {
         StringBuilder sb = new StringBuilder();
         sb.append(classNameHeader(theClass));
         sb.append(modifiers(m));
@@ -174,7 +175,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String paramsInfoString(Class<?>[] params) {
+    private static String paramsInfoString(Class<?>[] params) {
         StringBuilder sb = new StringBuilder();
         if ( empty(params) ) {
             sb.append(")");
@@ -184,51 +185,51 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String classNameHeader(Class<?> theClass) {
+    private static String classNameHeader(Class<?> theClass) {
         return theClass.getSimpleName() + " : ";
     }
 
-    private String modifiers(Field f) {
+    private static String modifiers(Field f) {
         return Modifier.toString(f.getModifiers()) + " ";
     }
 
-    private String modifiers(Constructor c) {
+    private static String modifiers(Constructor c) {
         return Modifier.toString(c.getModifiers()) + " ";
     }
 
-    private String modifiers(Method m) {
+    private static String modifiers(Method m) {
         return Modifier.toString((m.getModifiers())) + " ";
     }
 
-    private String fieldType(Field f) {
+    private static String fieldType(Field f) {
         return f.getType().getSimpleName() + " ";
     }
 
-    private String methodReturnType(Method m) {
+    private static String methodReturnType(Method m) {
         return m.getReturnType() + " ";
     }
 
-    private String fieldName(Field f) {
+    private static String fieldName(Field f) {
         return f.getName() + "\n";
     }
 
-    private String constructorName(Constructor c) {
+    private static String constructorName(Constructor c) {
         return c.getName() + "(";
     }
 
-    private String methodName(Method m) {
+    private static String methodName(Method m) {
         return m.getName() + "(";
     }
 
-    private String params(Constructor c) {
+    private static String params(Constructor c) {
         return paramsInfoString(c.getParameterTypes());
     }
 
-    private String params(Method m) {
+    private static String params(Method m) {
         return paramsInfoString(m.getParameterTypes());
     }
 
-    private String allParams(Class<?>[] params) {
+    private static String allParams(Class<?>[] params) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < params.length; i++) {
@@ -238,7 +239,7 @@ public class ReflectionUtils {
         return sb.toString();
     }
 
-    private String paramDelimiter(int i, Class<?>[] a) {
+    private static String paramDelimiter(int i, Class<?>[] a) {
         String result;
         if (iIsTheLastParam(i, a.length)) {
             result = ")";
@@ -248,28 +249,18 @@ public class ReflectionUtils {
         return result;
     }
 
-    private Field[] sortMemberArray(Field[] f) {
-        Arrays.sort(f, new Comparator<Field>() {
-            @Override
-            public int compare(Field o1, Field o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+    private static Field[] sortMemberArray(Field[] f) {
+        Arrays.sort(f, Comparator.comparing(Field::getName));
         return f;
     }
 
-    private Method[] sortMemberArray(Method[] m) {
-        Arrays.sort(m, new Comparator<Method>() {
-            @Override
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+    private static Method[] sortMemberArray(Method[] m) {
+        Arrays.sort(m, Comparator.comparing(Method::getName));
         return m;
     }
 
     // @@@ Refactor
-    private String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
+    private static String generateClassHierarchyString(List<Class<?>> classHierarchyInReverse) {
         StringBuilder sb = new StringBuilder();
 
         int numSpaces = 0;
@@ -285,7 +276,7 @@ public class ReflectionUtils {
     }
 
     // @@@ refactor
-    private Object getNextConcreteClass(Object o) throws IllegalAccessException, InstantiationException {
+    private static Object getNextConcreteClass(Object o) throws IllegalAccessException, InstantiationException {
         Class<?> superClass = o.getClass().getSuperclass();
 
         if ( hasASuperClass(o.getClass()) && isConcrete(superClass) ) {
@@ -302,28 +293,28 @@ public class ReflectionUtils {
         return superClass.newInstance();
     }
 
-    private Object instantiate(Object o) throws IllegalAccessException, InstantiationException {
+    private static Object instantiate(Object o) throws IllegalAccessException, InstantiationException {
         Class<?> c = o.getClass();
         return c.newInstance();
     }
 
-    private boolean hasASuperClass(Class<?> c) {
+    private static boolean hasASuperClass(Class<?> c) {
         return !c.getSimpleName().equals("Object");
     }
 
-    private boolean methodIsDeclaredInThisClass(Method m, Class<?> c) {
+    private static boolean methodIsDeclaredInThisClass(Method m, Class<?> c) {
         return m.getDeclaringClass().getSimpleName().equals(c.getSimpleName());
     }
 
-    private boolean iIsTheLastParam(int i, int n) {
+    private static boolean iIsTheLastParam(int i, int n) {
         return i == n-1;
     }
 
-    private boolean empty(Class<?>[] a) {
+    private static boolean empty(Class<?>[] a) {
         return a.length == 0;
     }
 
-    private boolean OHasANoArgConstructor(Object o) {
+    private static boolean OHasANoArgConstructor(Object o) {
         Constructor<?>[] constructors = o.getClass().getConstructors();
 
         for (Constructor<?> c : constructors ) {
@@ -334,7 +325,7 @@ public class ReflectionUtils {
         return false;
     }
 
-    private boolean isConcrete(Class<?> c) {
+    private static boolean isConcrete(Class<?> c) {
         boolean result = true;
         if ( Modifier.isAbstract(c.getModifiers()) ) {
             result = false;
@@ -342,7 +333,7 @@ public class ReflectionUtils {
         return result;
     }
 
-    private boolean isObjectClass(Object o) {
+    private static boolean isObjectClass(Object o) {
         return o.getClass().getSimpleName().equals("Object");
     }
 }

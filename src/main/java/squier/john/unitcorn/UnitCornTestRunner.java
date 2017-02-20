@@ -4,55 +4,75 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by johnsquier on 2/16/17.
+ * @@@ need to add handling for @Before and @After
+ * @@@ need to reorder methods in this class for readability
  */
 public class UnitCornTestRunner {
 
     public UnitCornTestRunner() { }
 
-    // @@@ Need to sort methods to ensure invocation order
     public String runTests(Class c) {
-        Method[] methodsWithTestAnnotation = getTestMethods(c);
-        List<Result> testResults = generateTestResults(c, methodsWithTestAnnotation);
+        Method[] testMethods = getTestMethods(c);
+        List<Result> testResults = generateTestResults(c, testMethods);
         return outputTestResultsToConsole(c, testResults);
     }
 
     public Result runTest(Class<?> c, String methodName) {
-        return runMethod(c, methodName);
+        // get method object from string
+        Method method;
+        try {
+            method = c.getMethod(methodName);
+        } catch (NoSuchMethodException e) {
+            return new Result(methodName, TestStatus.NON_EXISTENT_METHOD);
+        }
+
+        if ( isATestMethod(method) ) {
+            return runTestMethod(c, method);
+        }
+        else {
+            return new Result(methodName, TestStatus.NOT_A_TEST_METHOD);
+        }
     }
 
-    // @@@ refactor, too long
     private Method[] getTestMethods(Class c) {
         Method[] allMethods = c.getMethods();
         List<Method> testMethods = new ArrayList<>();
 
         for (Method m : allMethods) {
-            Annotation[] annos = m.getDeclaredAnnotations();
-            for (Annotation a : annos) {
-                if ( isATestAnnotation(a) ) {
-                    testMethods.add(m);
-                }
+            if ( isATestMethod(m) ) {
+                testMethods.add(m);
             }
         }
         testMethods.sort(Comparator.comparing(Method::getName));
         return testMethods.toArray(new Method[0]);
     }
 
-    private List<Result> generateTestResults(Class c, Method[] methodsWithTestAnnotation) {
+    private boolean isATestMethod(Method m) {
+        Annotation[] annos = m.getDeclaredAnnotations();
+        for (Annotation a : annos) {
+            if ( isATestAnnotation(a) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Result> generateTestResults(Class c, Method[] testMethods) {
         List<Result> results = new ArrayList<>();
-        for (Method method : methodsWithTestAnnotation) {
-            Result result = runTest(c, method.getName());
+        for (Method testMethod : testMethods) {
+            // reduce to one line?? more or less readable?
+            Result result = runTest(c, testMethod.getName());
             results.add(result);
         }
         return results;
     }
 
-    // @@@ Refactor
+    // @@@ Refactor, too long
     private String outputTestResultsToConsole(Class<?> c, List<Result> testResults) {
         StringBuilder sb = new StringBuilder();
         int testsPassed = numTestsPassed(testResults);
@@ -84,7 +104,7 @@ public class UnitCornTestRunner {
     }
 
     private int numTestsBroken(List<Result> l) {
-        return numTestsMethodError(l) + numTestsClassError(l);
+        return numTestsMethodError(l) + numTestsClassError(l) + numTestsBrokenTag(l);
     }
 
     private int numTestsMethodError(List<Result> l) {
@@ -93,6 +113,10 @@ public class UnitCornTestRunner {
 
     private int numTestsClassError(List<Result> l) {
         return countTestsWithStatus(l, TestStatus.CLASS_INSTANTIATION_FAILURE);
+    }
+
+    private int numTestsBrokenTag(List<Result> l) {
+        return countTestsWithStatus(l, TestStatus.BROKEN_TEST);
     }
 
     private int countTestsWithStatus(List<Result> l, TestStatus status) {
@@ -105,18 +129,23 @@ public class UnitCornTestRunner {
         return count;
     }
 
-    private Result runMethod(Class<?> c, String methodName) {
+    // @@@ refactor??
+    //  I use the exceptions generated during the try to determine what
+    //  happens when I run the given method
+    private Result runTestMethod(Class<?> c, Method method) {
         try {
-            Method method = c.getMethod(methodName);
             Object object = instantiateObjectFromClass(c);
-            Object theResult = method.invoke(object);
-            return new Result(methodName, TestStatus.SUCCESS);
-        } catch (NoSuchMethodException e) {
-            return new Result(methodName, TestStatus.NON_EXISTENT_METHOD);
+            method.invoke(object);
+            return new Result(method.getName(), TestStatus.SUCCESS);
         } catch (IllegalAccessException | InstantiationException e) {
-            return new Result(methodName, TestStatus.CLASS_INSTANTIATION_FAILURE);
+            return new Result(method.getName(), TestStatus.CLASS_INSTANTIATION_FAILURE);
         } catch (InvocationTargetException e) {
-            return new Result(methodName, TestStatus.FAILURE, e); // look at e for useful info
+            if ( e.getCause().getClass().equals(AssertionError.class) ) {
+                return new Result(method.getName(), TestStatus.FAILURE, e); // look at e for useful info
+            }
+            else {
+                return new Result(method.getName(), TestStatus.BROKEN_TEST, e);
+            }
         }
     }
 

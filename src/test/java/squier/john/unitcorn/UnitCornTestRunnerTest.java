@@ -41,6 +41,22 @@ public class UnitCornTestRunnerTest {
     }
 
     @Test
+    public void runBrokenTestFromDummyTests() {
+        Result expected = new Result("testThatIsBroken", TestStatus.BROKEN_TEST);
+        Result actual = unitCornTestRunner.runTest(DummyTests.class, "testThatIsBroken");
+
+        Assert.assertTrue(expected.equals(actual));
+    }
+
+    @Test
+    public void runMethodThatIsntATestFromDummyTests() {
+        Result expected = new Result("methodThatIsntTaggedWithTest", TestStatus.NOT_A_TEST_METHOD);
+        Result actual = unitCornTestRunner.runTest(DummyTests.class, "methodThatIsntTaggedWithTest");
+
+        Assert.assertTrue(expected.equals(actual));
+    }
+
+    @Test
     public void runTestThatDoesNotExist() {
         Result expected = new Result("testThatDoesNotExist",TestStatus.NON_EXISTENT_METHOD);
         Result actual = unitCornTestRunner.runTest(DummyTests.class, "testThatDoesNotExist");
@@ -50,7 +66,7 @@ public class UnitCornTestRunnerTest {
 
     @Test
     public void runTestOnClassWithoutNoArgConstructor() {
-        class PrivateConstructor{ private PrivateConstructor(){} public void aMethod(){} }
+        class PrivateConstructor{ private PrivateConstructor(){} @Test public void aMethod(){} }
 
         Result expected = new Result("aMethod", TestStatus.CLASS_INSTANTIATION_FAILURE);
         Result actual = unitCornTestRunner.runTest(PrivateConstructor.class, "aMethod");
@@ -64,10 +80,13 @@ public class UnitCornTestRunnerTest {
                             "\t  Method : testThatFails()\n" +
                             "\t  Result : FAILURE\n" +
                             "\n" +
+                            "\t  Method : testThatIsBroken()\n" +
+                            "\t  Result : BROKEN_TEST\n" +
+                            "\n" +
                             "\t  Method : testThatPasses()\n" +
                             "\t  Result : SUCCESS\n" +
                             "\n" +
-                            "1 Test Passed 1 Test Failed 0 Tests Broken\n";
+                            "1 Test Passed 1 Test Failed 1 Test Broken\n";
         String actual = unitCornTestRunner.runTests(DummyTests.class);
 
         Assert.assertEquals(expected, actual);
@@ -98,7 +117,7 @@ public class UnitCornTestRunnerTest {
                             "\t  Result : SUCCESS\n" +
                             "\n" + // myTestRunner makes this test fail since I don't check for exceptions
                             "\t  Method : instantiateClassHierarchyBoolean()\n" +
-                            "\t  Result : FAILURE\n" +
+                            "\t  Result : BROKEN_TEST\n" +
                             "\n" +
                             "\t  Method : instantiateClassHierarchyJPanel()\n" +
                             "\t  Result : SUCCESS\n" +
@@ -142,7 +161,7 @@ public class UnitCornTestRunnerTest {
                             "\t  Method : tryToCompareObjectToNullInterfaceTest()\n" +
                             "\t  Result : SUCCESS\n" +
                             "\n" +
-                            "21 Tests Passed 1 Test Failed 0 Tests Broken\n";
+                            "21 Tests Passed 0 Tests Failed 1 Test Broken\n";
         String actual = unitCornTestRunner.runTests(ReflectionUtilsTest.class);
 
         Assert.assertEquals(expected, actual);

@@ -17,9 +17,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void objectDoesImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
-        boolean actual = reflectionUtils.classImplementsInterface(new Scanner(System.in), "java.io.Closeable");
+        boolean actual = ReflectionUtils.classImplementsInterface(new Scanner(System.in), "java.io.Closeable");
 
         Assert.assertEquals("I expect Scanner(System.in) to implement \"java.io.Closeable\"",
                 expected, actual);
@@ -27,9 +26,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void objectDoesNotImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Integer(10), "java.lang.Iterable");
+        boolean actual = ReflectionUtils.classImplementsInterface(new Integer(10), "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect Integer() to implement \"java.lang.Iterable\"",
                 expected, actual);
@@ -37,9 +35,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classObjectDoesImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
-        boolean actual = reflectionUtils.classImplementsInterface("string".getClass(), "java.lang.CharSequence");
+        boolean actual = ReflectionUtils.classImplementsInterface("string".getClass(), "java.lang.CharSequence");
 
         Assert.assertEquals("I expect String.class to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -47,9 +44,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classObjectDoesNotImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Integer(10).getClass(), "java.lang.Iterable");
+        boolean actual = ReflectionUtils.classImplementsInterface(new Integer(10).getClass(), "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect Integer.class to implement \"java.lang.Iterable\"",
                 expected, actual);
@@ -57,9 +53,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classNameDoesImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
-        boolean actual = reflectionUtils.classImplementsInterface("java.lang.String", "java.lang.CharSequence");
+        boolean actual = ReflectionUtils.classImplementsInterface("java.lang.String", "java.lang.CharSequence");
 
         Assert.assertEquals("I expect \"java.lang.String\" to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -67,9 +62,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void classNameDoesNotImplementInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "java.lang.Iterable");
+        boolean actual = ReflectionUtils.classImplementsInterface("java.lang.Integer", "java.lang.Iterable");
 
         Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement\"java.lang.Iterable\"",
                 expected, actual);
@@ -77,9 +71,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareObjectToNonExistentInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
+        boolean actual = ReflectionUtils.classImplementsInterface(new Object(), "abra.kadabra.Allakhazham");
 
         Assert.assertEquals("I don't expect Object() to implement \"abra.kadabra.Allakhazham\"",
                 expected, actual);
@@ -87,9 +80,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassObjectToNonExistentInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), "abra.kadabra.Allakhazham");
+        boolean actual = ReflectionUtils.classImplementsInterface(new Object().getClass(), "abra.kadabra.Allakhazham");
 
         Assert.assertEquals("I don't expect Object.class to implement \"abra.kadabra.Allakhazham\"",
                 expected, actual);
@@ -97,9 +89,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassNameToNonExistentInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", "abra.kadabra.Allakhazham");
+        boolean actual = ReflectionUtils.classImplementsInterface("java.lang.Integer", "abra.kadabra.Allakhazham");
 
         Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement \"abra.kadabra.Allakhazham\"",
                 expected, actual);
@@ -107,9 +98,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareObjectToNullInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Object(), null);
+        boolean actual = ReflectionUtils.classImplementsInterface(new Object(), null);
 
         Assert.assertEquals("I don't expect Object() to implement null",
                 expected, actual);
@@ -117,9 +107,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassObjectToNullInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface(new Object().getClass(), null);
+        boolean actual = ReflectionUtils.classImplementsInterface(new Object().getClass(), null);
 
         Assert.assertEquals("I don't expect Object.class to implement null",
                 expected, actual);
@@ -127,9 +116,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void tryToCompareClassNameToNullInterfaceTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = false;
-        boolean actual = reflectionUtils.classImplementsInterface("java.lang.Integer", null);
+        boolean actual = ReflectionUtils.classImplementsInterface("java.lang.Integer", null);
 
         Assert.assertEquals("I don't expect \"java.lang.Integer\" to implement null",
                 expected, actual);
@@ -137,9 +125,8 @@ public class ReflectionUtilsTest {
 
     @Test
     public void stringIsNotAClassNameButAStringLiteralTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         boolean expected = true;
-        boolean actual = reflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
+        boolean actual = ReflectionUtils.classImplementsInterface(" ", "java.lang.CharSequence");
 
         Assert.assertEquals("I expect \" \" to implement \"java.lang.CharSequence\"",
                 expected, actual);
@@ -147,7 +134,6 @@ public class ReflectionUtilsTest {
 
     @Test
     public void listAllMembersBufferedWriterTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "Fields\n" +
                 "Constructors\n" +
                 "BufferedWriter : public java.io.BufferedWriter(java.io.Writer)\n" +
@@ -191,7 +177,7 @@ public class ReflectionUtilsTest {
 
         String actual = null;
 
-        try { actual = reflectionUtils.listAllMembers(new BufferedWriter(new FileWriter("test.txt"))); }
+        try { actual = ReflectionUtils.listAllMembers(new BufferedWriter(new FileWriter("test.txt"))); }
         catch ( Exception e ) { }
 
         Assert.assertEquals(expected, actual);
@@ -199,7 +185,6 @@ public class ReflectionUtilsTest {
 
     @Test
     public void listAllMembersBooleanTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "Fields\n" +
                 "Boolean : public static final Boolean FALSE\n" +
                 "Boolean : public static final Boolean TRUE\n" +
@@ -238,43 +223,36 @@ public class ReflectionUtilsTest {
                 "Object : public final native void wait(long)\n" +
                 "Object : public final void wait()\n";
 
-        String actual = reflectionUtils.listAllMembers(new Boolean(true));
+        String actual = ReflectionUtils.listAllMembers(Boolean.TRUE);
 
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void getClassHierarchyBooleanTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "java.lang.Object\n  java.lang.Boolean\n";
-        String actual = reflectionUtils.getClassHierarchy(new Boolean(true));
+        String actual = ReflectionUtils.getClassHierarchy(Boolean.TRUE);
 
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void getClassHierarchyTreeMapTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         String expected = "java.lang.Object\n  java.util.AbstractMap\n    java.util.TreeMap\n";
-        String actual = reflectionUtils.getClassHierarchy(new TreeMap<String, String>());
+        String actual = ReflectionUtils.getClassHierarchy(new TreeMap<String, String>());
 
         Assert.assertEquals(expected, actual);
     }
 
     @Test
     public void instantiateClassHierarchyObjectTest() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new Object());
 
         List<Object> actual = null;
         try {
-            actual = reflectionUtils.instantiateClassHierarchy(new Object());
-        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
-            classInHierarchyLacksNoArgConstructor.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            actual = ReflectionUtils.instantiateClassHierarchy(new Object());
+        } catch (ClassInHierarchyLacksNoArgConstructor | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -284,19 +262,14 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyString() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
-        expected.add(new String());
+        expected.add("");
         expected.add(new Object());
 
         List<Object> actual = null;
         try {
-            actual = reflectionUtils.instantiateClassHierarchy(new String());
-        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
-            classInHierarchyLacksNoArgConstructor.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            actual = ReflectionUtils.instantiateClassHierarchy("");
+        } catch (ClassInHierarchyLacksNoArgConstructor | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -307,19 +280,14 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyArrayList() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new ArrayList<>());
         expected.add(new Object());
 
         List<Object> actual = null;
         try {
-            actual = reflectionUtils.instantiateClassHierarchy(new ArrayList<>());
-        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
-            classInHierarchyLacksNoArgConstructor.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            actual = ReflectionUtils.instantiateClassHierarchy(new ArrayList<>());
+        } catch (ClassInHierarchyLacksNoArgConstructor | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -330,7 +298,6 @@ public class ReflectionUtilsTest {
 
     @Test
     public void instantiateClassHierarchyJPanel() {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
         List<Object> expected = new ArrayList<>();
         expected.add(new JPanel());
         expected.add(new Container());
@@ -338,12 +305,8 @@ public class ReflectionUtilsTest {
 
         List<Object> actual = null;
         try {
-            actual = reflectionUtils.instantiateClassHierarchy(new JPanel());
-        } catch (ClassInHierarchyLacksNoArgConstructor classInHierarchyLacksNoArgConstructor) {
-            classInHierarchyLacksNoArgConstructor.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            actual = ReflectionUtils.instantiateClassHierarchy(new JPanel());
+        } catch (ClassInHierarchyLacksNoArgConstructor | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
 
@@ -356,8 +319,7 @@ public class ReflectionUtilsTest {
     @Test(expected = ClassInHierarchyLacksNoArgConstructor.class)
     public void instantiateClassHierarchyBoolean()
             throws IllegalAccessException, ClassInHierarchyLacksNoArgConstructor, InstantiationException {
-        ReflectionUtils reflectionUtils = new ReflectionUtils();
-        reflectionUtils.instantiateClassHierarchy(new Boolean(true));
+        ReflectionUtils.instantiateClassHierarchy(Boolean.TRUE);
     }
 
     // @@@ add tests for the other exceptions

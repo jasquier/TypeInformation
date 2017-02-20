@@ -19,4 +19,14 @@ public class DummyTests {
         Assert.assertTrue("This test is designed to fail as part of the UnitCornTestRunnerTest class",
                 false);
     }
+
+    @Test
+    public void testThatIsBroken() {
+        int[] a = new int[1];
+        int x = a[10]; // out of bounds
+    }
+
+    public void methodThatIsntTaggedWithTest() {
+
+    }
 }
