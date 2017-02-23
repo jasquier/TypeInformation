@@ -1,7 +1,7 @@
 package squier.john.unitcorn;
 
 /**
- * Created by johnsquier on 2/16/17.
+ * @author John A. Squier
  */
 public class Result {
 
