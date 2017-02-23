@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * Created by johnsquier on 2/16/17.
- * @@@ need to add handling for @Before and @After
  * @@@ need to reorder methods in this class for readability
  */
 public class UnitCornTestRunner {
@@ -17,13 +16,103 @@ public class UnitCornTestRunner {
     public UnitCornTestRunner() { }
 
     public String runTests(Class c) {
+        Method before = null, after = null;
+        if ( hasABeforeMethod(c) ) {
+            before = getBeforeMethod(c);
+        }
+        if ( hasAnAfterMethod(c) ) {
+            after = getAfterMethod(c);
+        }
         Method[] testMethods = getTestMethods(c);
-        List<Result> testResults = generateTestResults(c, testMethods);
+        List<Result> testResults = generateTestResults(c, testMethods, before, after);
         return outputTestResultsToConsole(c, testResults);
     }
 
+    private boolean hasAnAfterMethod(Class c) {
+        return hasMethodWithAnnotation(c, "after");
+    }
+
+    private boolean hasABeforeMethod(Class c) {
+        return hasMethodWithAnnotation(c, "before");
+    }
+
+    private boolean hasMethodWithAnnotation(Class<?> c, String annotation) {
+        Method[] allMethods = c.getMethods();
+        for ( Method m : allMethods ) {
+            if ( methodHasAnno(m, annotation) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Method getBeforeMethod(Class<?> c) {
+        return getMethodWithAnnotation(c, "before");
+    }
+
+    private Method getAfterMethod(Class<?> c) {
+        return getMethodWithAnnotation(c, "after");
+    }
+
+    private Method[] getTestMethods(Class c) {
+        return getMethodsWithAnnotation(c, "Test");
+    }
+
+    private Method[] getMethodsWithAnnotation(Class<?> c, String annotation) {
+        Method[] allMethods = c.getMethods();
+        List<Method> methodsWithAnno = new ArrayList<>();
+
+        for ( Method m : allMethods ) {
+            if ( methodHasAnno(m, annotation) ) {
+                methodsWithAnno.add(m);
+            }
+        }
+        methodsWithAnno.sort(Comparator.comparing(Method::getName));
+        return methodsWithAnno.toArray(new Method[0]);
+    }
+
+    private Method getMethodWithAnnotation(Class<?> c, String annotation) {
+        Method[] allMethods = c.getMethods();
+        for (Method m : allMethods) {
+            if ( methodHasAnno(m, annotation) ) {
+                return m;
+            }
+        }
+        return null; // should use a special case method object
+    }
+
+    private boolean methodHasAnno(Method m, String annotation) {
+        Annotation[] annos = m.getDeclaredAnnotations();
+        for (Annotation a : annos) {
+            if ( a.annotationType().getSimpleName().equalsIgnoreCase(annotation) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Result> generateTestResults(Class c, Method[] testMethods, Method before, Method after) {
+        List<Result> results = new ArrayList<>();
+        Result result;
+        for (Method testMethod : testMethods) {
+            if ( before != null && after == null ) {
+                result = runTestMethodWithBefore(c, testMethod, before);
+            }
+            else if ( before == null && after != null ) {
+                result = runTestMethodWithAfter(c, testMethod, after);
+            }
+            else if ( before != null && after != null ) {
+                result = runTestMethod(c, testMethod, before, after);
+            }
+            else {
+                result = runTest(c, testMethod.getName());
+            }
+            results.add(result);
+        }
+        return results;
+    }
+
     public Result runTest(Class<?> c, String methodName) {
-        // get method object from string
         Method method;
         try {
             method = c.getMethod(methodName);
@@ -39,37 +128,8 @@ public class UnitCornTestRunner {
         }
     }
 
-    private Method[] getTestMethods(Class c) {
-        Method[] allMethods = c.getMethods();
-        List<Method> testMethods = new ArrayList<>();
-
-        for (Method m : allMethods) {
-            if ( isATestMethod(m) ) {
-                testMethods.add(m);
-            }
-        }
-        testMethods.sort(Comparator.comparing(Method::getName));
-        return testMethods.toArray(new Method[0]);
-    }
-
-    private boolean isATestMethod(Method m) {
-        Annotation[] annos = m.getDeclaredAnnotations();
-        for (Annotation a : annos) {
-            if ( isATestAnnotation(a) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<Result> generateTestResults(Class c, Method[] testMethods) {
-        List<Result> results = new ArrayList<>();
-        for (Method testMethod : testMethods) {
-            // reduce to one line?? more or less readable?
-            Result result = runTest(c, testMethod.getName());
-            results.add(result);
-        }
-        return results;
+    private boolean isATestMethod(Method method) {
+        return methodHasAnno(method, "test");
     }
 
     // @@@ Refactor, too long
@@ -132,28 +192,44 @@ public class UnitCornTestRunner {
     // @@@ refactor??
     //  I use the exceptions generated during the try to determine what
     //  happens when I run the given method
+    // pass two nulls to runTestMethod
     private Result runTestMethod(Class<?> c, Method method) {
+        return runTestMethod(c, method, null, null);
+    }
+
+    private Result runTestMethodWithBefore(Class<?> c, Method testMethod, Method beforeMethod) {
+        return runTestMethod(c, testMethod, beforeMethod, null);
+    }
+
+    private Result runTestMethodWithAfter(Class<?> c, Method testMethod, Method afterMethod) {
+        return runTestMethod(c, testMethod, null, afterMethod);
+    }
+
+    private Result runTestMethod(Class<?> c, Method testMethod, Method beforeMethod, Method afterMethod) {
         try {
             Object object = instantiateObjectFromClass(c);
-            method.invoke(object);
-            return new Result(method.getName(), TestStatus.SUCCESS);
+            if ( beforeMethod != null ) {
+                beforeMethod.invoke(object);
+            }
+            testMethod.invoke(object);
+            if ( afterMethod != null ) {
+                afterMethod.invoke(object);
+            }
+            return new Result(testMethod.getName(), TestStatus.SUCCESS);
         } catch (IllegalAccessException | InstantiationException e) {
-            return new Result(method.getName(), TestStatus.CLASS_INSTANTIATION_FAILURE);
+            return new Result(testMethod.getName(), TestStatus.CLASS_INSTANTIATION_FAILURE);
         } catch (InvocationTargetException e) {
             if ( e.getCause().getClass().equals(AssertionError.class) ) {
-                return new Result(method.getName(), TestStatus.FAILURE, e); // look at e for useful info
+                return new Result(testMethod.getName(), TestStatus.FAILURE, e); // look at e for useful info
             }
             else {
-                return new Result(method.getName(), TestStatus.BROKEN_TEST, e);
+                return new Result(testMethod.getName(), TestStatus.BROKEN_TEST, e);
             }
         }
     }
 
+
     private Object instantiateObjectFromClass(Class<?> c) throws IllegalAccessException, InstantiationException {
         return c.newInstance();
-    }
-
-    private boolean isATestAnnotation(Annotation a) {
-        return a.annotationType().getSimpleName().equalsIgnoreCase("test");
     }
 }

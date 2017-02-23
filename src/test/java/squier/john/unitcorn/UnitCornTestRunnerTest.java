@@ -21,6 +21,8 @@ public class UnitCornTestRunnerTest {
         Result expected = new Result("objectDoesImplementInterfaceTest", TestStatus.SUCCESS);
         Result actual = unitCornTestRunner.runTest(ReflectionUtilsTest.class, "objectDoesImplementInterfaceTest");
 
+        System.out.println(actual.getStatus());
+
         Assert.assertTrue(expected.equals(actual));
     }
 
@@ -163,6 +165,25 @@ public class UnitCornTestRunnerTest {
                             "\n" +
                             "21 Tests Passed 0 Tests Failed 1 Test Broken\n";
         String actual = unitCornTestRunner.runTests(ReflectionUtilsTest.class);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    // says the tests are broken but thats because my @Before isnt working
+    @Test
+    public void runTestsInResultTestAndGenerateResults() {
+        String expected = "Class Tested : ResultTest\n" +
+                            "\t  Method : getThrownDuringMethodInvokeTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : resultsEqualTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "\t  Method : resultsNotEqualTest()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "3 Tests Passed 0 Tests Failed 0 Tests Broken\n";
+        String actual = unitCornTestRunner.runTests(ResultTest.class);
 
         Assert.assertEquals(expected, actual);
     }

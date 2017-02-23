@@ -16,9 +16,8 @@ public class ReflectionUtils {
     public static boolean classImplementsInterface(String aClassName, String anInterfaceName) {
         Class<?> classClass = getClassClassFromString(aClassName);
         Class<?> interfaceClassClass = getClassClassFromString(anInterfaceName);
-        // will short-circuit if interfaceClassClass == null
         return interfaceClassClass != null && ((classClass == null) ? checkClassForInterface(aClassName.getClass(), interfaceClassClass) :
-                checkClassForInterface(classClass, interfaceClassClass));
+                                                                        checkClassForInterface(classClass, interfaceClassClass));
     }
 
     public static boolean classImplementsInterface(Class<?> theClass, String anInterface) {
@@ -76,11 +75,8 @@ public class ReflectionUtils {
     }
 
     private static Class<?> getClassClassFromString(String aClassName) {
-        if ( aClassName == null ) {
-            return null;
-        }
         try {
-            return Class.forName(aClassName);
+            return aClassName == null ? null : Class.forName(aClassName);
         } catch ( ClassNotFoundException e ) {
             return null;
         }
@@ -119,7 +115,6 @@ public class ReflectionUtils {
 
     private static String constructorInfoString(Class<?> theClass) {
         Constructor<?>[] constructors = theClass.getConstructors();
-        // sort constructors by name?
 
         StringBuilder sb = new StringBuilder();
         sb.append("Constructors\n");
