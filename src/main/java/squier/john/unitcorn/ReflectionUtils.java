@@ -8,8 +8,7 @@ import java.util.*;
 
 /**
  * Created by John A. Squier on 2/15/17.
- * @@@ multiple refactor spots in src
- * @@@ Class is stateless? gonna go static since these are all utility methods
+ * TODO multiple refactor spots in src
  */
 public class ReflectionUtils {
 

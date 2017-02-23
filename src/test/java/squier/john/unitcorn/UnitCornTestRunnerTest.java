@@ -77,24 +77,6 @@ public class UnitCornTestRunnerTest {
     }
 
     @Test
-    public void runTestsInClassDummyTestsAndGenerateResults() {
-        String expected = "Class Tested : DummyTests\n" +
-                            "\t  Method : testThatFails()\n" +
-                            "\t  Result : FAILURE\n" +
-                            "\n" +
-                            "\t  Method : testThatIsBroken()\n" +
-                            "\t  Result : BROKEN_TEST\n" +
-                            "\n" +
-                            "\t  Method : testThatPasses()\n" +
-                            "\t  Result : SUCCESS\n" +
-                            "\n" +
-                            "1 Test Passed 1 Test Failed 1 Test Broken\n";
-        String actual = unitCornTestRunner.runTests(DummyTests.class);
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
     public void runTestsInReflectionUtilsTestAndGenerateResults() {
         String expected = "Class Tested : ReflectionUtilsTest\n" +
                             "\t  Method : classNameDoesImplementInterfaceTest()\n" +
@@ -169,7 +151,6 @@ public class UnitCornTestRunnerTest {
         Assert.assertEquals(expected, actual);
     }
 
-    // says the tests are broken but thats because my @Before isnt working
     @Test
     public void runTestsInResultTestAndGenerateResults() {
         String expected = "Class Tested : ResultTest\n" +
@@ -184,6 +165,48 @@ public class UnitCornTestRunnerTest {
                             "\n" +
                             "3 Tests Passed 0 Tests Failed 0 Tests Broken\n";
         String actual = unitCornTestRunner.runTests(ResultTest.class);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runTestsInClassDummyTestsAndGenerateResults() {
+        String expected = "Class Tested : DummyTests\n" +
+                "\t  Method : testThatFails()\n" +
+                "\t  Result : FAILURE\n" +
+                "\n" +
+                "\t  Method : testThatIsBroken()\n" +
+                "\t  Result : BROKEN_TEST\n" +
+                "\n" +
+                "\t  Method : testThatPasses()\n" +
+                "\t  Result : SUCCESS\n" +
+                "\n" +
+                "1 Test Passed 1 Test Failed 1 Test Broken\n";
+        String actual = unitCornTestRunner.runTests(DummyTests.class);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runTestsInDummyTests2AndGenerateResults() {
+        String expected = "Class Tested : DummyTests2\n" +
+                            "\t  Method : testThatIsTrue()\n" +
+                            "\t  Result : SUCCESS\n" +
+                            "\n" +
+                            "1 Test Passed 0 Tests Failed 0 Tests Broken\n";
+        String actual = unitCornTestRunner.runTests(DummyTests2.class);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runTestsInDummyTests3AndGenerateResults() {
+        String expected = "Class Tested : DummyTests3\n" +
+                "\t  Method : testThatIsTrue()\n" +
+                "\t  Result : SUCCESS\n" +
+                "\n" +
+                "1 Test Passed 0 Tests Failed 0 Tests Broken\n";
+        String actual = unitCornTestRunner.runTests(DummyTests3.class);
 
         Assert.assertEquals(expected, actual);
     }

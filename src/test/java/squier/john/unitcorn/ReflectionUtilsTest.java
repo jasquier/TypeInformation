@@ -1,6 +1,7 @@
 package squier.john.unitcorn;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.swing.*;
@@ -14,6 +15,14 @@ import java.util.List;
  * Created by johnsquier on 2/15/17.
  */
 public class ReflectionUtilsTest {
+
+    ReflectionUtils reflectionUtils;
+
+    @Before
+    public void setup() {
+        // this is only here for 100% test coverage, all methods are static
+        reflectionUtils = new ReflectionUtils();
+    }
 
     @Test
     public void objectDoesImplementInterfaceTest() {

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Created by johnsquier on 2/16/17.
- * @@@ need to reorder methods in this class for readability
+ * TODO need to reorder methods in this class for readability
  */
 public class UnitCornTestRunner {
 
@@ -73,12 +73,13 @@ public class UnitCornTestRunner {
 
     private Method getMethodWithAnnotation(Class<?> c, String annotation) {
         Method[] allMethods = c.getMethods();
+        Method toReturn = null;
         for (Method m : allMethods) {
             if ( methodHasAnno(m, annotation) ) {
-                return m;
+                toReturn = m;
             }
         }
-        return null; // should use a special case method object
+        return toReturn;
     }
 
     private boolean methodHasAnno(Method m, String annotation) {
@@ -189,14 +190,6 @@ public class UnitCornTestRunner {
         return count;
     }
 
-    // @@@ refactor??
-    //  I use the exceptions generated during the try to determine what
-    //  happens when I run the given method
-    // pass two nulls to runTestMethod
-    private Result runTestMethod(Class<?> c, Method method) {
-        return runTestMethod(c, method, null, null);
-    }
-
     private Result runTestMethodWithBefore(Class<?> c, Method testMethod, Method beforeMethod) {
         return runTestMethod(c, testMethod, beforeMethod, null);
     }
@@ -205,6 +198,11 @@ public class UnitCornTestRunner {
         return runTestMethod(c, testMethod, null, afterMethod);
     }
 
+    private Result runTestMethod(Class<?> c, Method method) {
+        return runTestMethod(c, method, null, null);
+    }
+
+    // @@@ refactor??
     private Result runTestMethod(Class<?> c, Method testMethod, Method beforeMethod, Method afterMethod) {
         try {
             Object object = instantiateObjectFromClass(c);

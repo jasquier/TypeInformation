@@ -32,9 +32,7 @@ public class DummyTests {
         int x = a[10]; // out of bounds
     }
 
-    public void methodThatIsntTaggedWithTest() {
-
-    }
+    public void methodThatIsntTaggedWithTest() { }
 
     @After
     public void teardown() {
